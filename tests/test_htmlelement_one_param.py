@@ -4,7 +4,7 @@
 # Interpreter version: python 2.7
 #
 # Imports =====================================================================
-from dhtmlparser import HTMLElement
+from dhtmlparser3 import HTMLElement
 
 
 # Functions & objects =========================================================

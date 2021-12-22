@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.0
+-----
+    - Rewritten to use different parser, support for HTML entities.
+
 2.2.3
 -----
     - 2020-04-12 Fix by #25 (thx https://github.com/fm4d).

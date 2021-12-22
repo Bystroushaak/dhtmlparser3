@@ -1,8 +1,3 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Interpreter version: python 2.7
-#
 """
 This module provides ability to quote and unquote strings using backslash
 notation.

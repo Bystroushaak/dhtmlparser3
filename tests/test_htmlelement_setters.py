@@ -4,13 +4,13 @@
 # Interpreter version: python 2.7
 #
 # Imports =====================================================================
-import dhtmlparser
-from dhtmlparser import first
+import dhtmlparser3
+from dhtmlparser3 import first
 
 
 # Variables ===================================================================
 TEXT = "<div><nonpair /></div>"
-dom = dhtmlparser.parseString(TEXT)
+dom = dhtmlparser3.parseString(TEXT)
 
 
 # Functions & objects =========================================================
@@ -20,7 +20,7 @@ def test_replaceWith():
     assert nonpair
 
     nonpair.replaceWith(
-        dhtmlparser.HTMLElement("<another />")
+        dhtmlparser3.HTMLElement("<another />")
     )
 
     assert dom.find("another")
@@ -40,7 +40,7 @@ def test_removeChild():
     assert dom.getContent() == ""
     assert len(dom.childs) == 1  # endtag wasn't removed
 
-    dom2 = dhtmlparser.parseString("<div></div>")
+    dom2 = dhtmlparser3.parseString("<div></div>")
     dom2.removeChild(dom2.find("div"))
 
     assert dom2.getContent() == ""
@@ -48,7 +48,7 @@ def test_removeChild():
 
 
 def test_params():
-    dom = dhtmlparser.parseString("<xe id=1 />")
+    dom = dhtmlparser3.parseString("<xe id=1 />")
     xe = first(dom.find("xe"))
 
     assert xe.params["id"] == "1"

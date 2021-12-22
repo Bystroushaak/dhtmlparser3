@@ -1,18 +1,11 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Interpreter version: python 2.7
-#
-# Imports =====================================================================
 import pytest
 
-import dhtmlparser
-from dhtmlparser import first
+import dhtmlparser3
+from dhtmlparser3 import first
 
 
-# Functions & objects =========================================================
 def test_raw_split():
-    splitted = dhtmlparser._raw_split(
+    splitted = dhtmlparser3._raw_split(
         """<html><tag params="true"></html>"""
     )
 
@@ -24,7 +17,7 @@ def test_raw_split():
 
 
 def test_raw_split_text():
-    splitted = dhtmlparser._raw_split(
+    splitted = dhtmlparser3._raw_split(
         """   <html>asd asd"as das</html>   """
     )
 
@@ -38,7 +31,7 @@ def test_raw_split_text():
 
 
 def test_raw_split_parameters():
-    splitted = dhtmlparser._raw_split(
+    splitted = dhtmlparser3._raw_split(
         """<html><tag params="<html_tag>"></html>"""
     )
 
@@ -50,7 +43,7 @@ def test_raw_split_parameters():
 
 
 def test_raw_split_parameters_quotes():
-    splitted = dhtmlparser._raw_split(
+    splitted = dhtmlparser3._raw_split(
         """<html><tag params="some \\"<quoted>\\" text"></html>"""
     )
 
@@ -62,7 +55,7 @@ def test_raw_split_parameters_quotes():
 
 
 def test_raw_split_comments():
-    splitted = dhtmlparser._raw_split(
+    splitted = dhtmlparser3._raw_split(
         """<html><!-- asd " asd" > asd --></html>"""
     )
 
@@ -75,33 +68,33 @@ def test_raw_split_comments():
 
 def test_index_of_end_tag():
     tag_list = [
-        dhtmlparser.HTMLElement("<h1>"),
-        dhtmlparser.HTMLElement("<br />"),
-        dhtmlparser.HTMLElement("</h1>"),
+        dhtmlparser3.HTMLElement("<h1>"),
+        dhtmlparser3.HTMLElement("<br />"),
+        dhtmlparser3.HTMLElement("</h1>"),
     ]
 
-    assert dhtmlparser._indexOfEndTag(tag_list) == 2
-    assert dhtmlparser._indexOfEndTag(tag_list[1:]) == 0
-    assert dhtmlparser._indexOfEndTag(tag_list[2:]) == 0
+    assert dhtmlparser3._indexOfEndTag(tag_list) == 2
+    assert dhtmlparser3._indexOfEndTag(tag_list[1:]) == 0
+    assert dhtmlparser3._indexOfEndTag(tag_list[2:]) == 0
 
     tag_list = [
-        dhtmlparser.HTMLElement("<h1>"),
-        dhtmlparser.HTMLElement("</h1>"),
-        dhtmlparser.HTMLElement("</h1>"),
+        dhtmlparser3.HTMLElement("<h1>"),
+        dhtmlparser3.HTMLElement("</h1>"),
+        dhtmlparser3.HTMLElement("</h1>"),
     ]
 
-    assert dhtmlparser._indexOfEndTag(tag_list) == 1
+    assert dhtmlparser3._indexOfEndTag(tag_list) == 1
 
 
 def test_parse_dom():
     tag_list = [
-        dhtmlparser.HTMLElement("<h1>"),
-        dhtmlparser.HTMLElement("<xx>"),
-        dhtmlparser.HTMLElement("<xx>"),
-        dhtmlparser.HTMLElement("</h1>"),
+        dhtmlparser3.HTMLElement("<h1>"),
+        dhtmlparser3.HTMLElement("<xx>"),
+        dhtmlparser3.HTMLElement("<xx>"),
+        dhtmlparser3.HTMLElement("</h1>"),
     ]
 
-    dom = dhtmlparser._parseDOM(tag_list)
+    dom = dhtmlparser3._parseDOM(tag_list)
 
     assert len(dom) == 2
     assert len(first(dom).childs) == 2
@@ -123,7 +116,7 @@ def test_parse_dom():
 
 
 def test_parseString():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """<html><tag PARAM="true"></html>"""
     )
 
@@ -148,7 +141,7 @@ def test_parseString():
 
 
 def test_parseString_cip():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """<html><tag PARAM="true"></html>""",
         cip=False
     )
@@ -179,11 +172,11 @@ def test_parseString_cip():
 
 
 def test_makeDoubleLinked():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """<html><tag PARAM="true"></html>"""
     )
 
-    dhtmlparser.makeDoubleLinked(dom)
+    dhtmlparser3.makeDoubleLinked(dom)
 
     assert dom.childs[0].parent == dom
     assert dom.childs[1].parent == dom
@@ -192,23 +185,23 @@ def test_makeDoubleLinked():
 
 
 def test_remove_tags():
-    dom = dhtmlparser.parseString("a<b>xax<i>xe</i>xi</b>d")
-    assert dhtmlparser.removeTags(dom) == "axaxxexid"
+    dom = dhtmlparser3.parseString("a<b>xax<i>xe</i>xi</b>d")
+    assert dhtmlparser3.removeTags(dom) == "axaxxexid"
 
-    dom = dhtmlparser.parseString("<b></b>")
-    assert not dhtmlparser.removeTags(dom)
+    dom = dhtmlparser3.parseString("<b></b>")
+    assert not dhtmlparser3.removeTags(dom)
 
-    dom = dhtmlparser.parseString("<b><i></b>")
-    assert not dhtmlparser.removeTags(dom)
+    dom = dhtmlparser3.parseString("<b><i></b>")
+    assert not dhtmlparser3.removeTags(dom)
 
-    dom = dhtmlparser.parseString("<b><!-- asd --><i></b>")
-    assert not dhtmlparser.removeTags(dom)
+    dom = dhtmlparser3.parseString("<b><!-- asd --><i></b>")
+    assert not dhtmlparser3.removeTags(dom)
 
 
 def test_remove_tags_str_input():
     inp = "a<b>xax<i>xe</i>xi</b>d"
 
-    assert dhtmlparser.removeTags(inp) == "axaxxexid"
+    assert dhtmlparser3.removeTags(inp) == "axaxxexid"
 
 
 def test_recovery_after_invalid_tag():
@@ -217,7 +210,7 @@ def test_recovery_after_invalid_tag():
 <something_parsable />
 """
 
-    dom = dhtmlparser.parseString(inp)
+    dom = dhtmlparser3.parseString(inp)
 
     assert dom.find("sometag")
     assert not dom.find("invalid")
@@ -233,7 +226,7 @@ def test_multiline_attribute():
 <something_parsable />
 """
 
-    dom = dhtmlparser.parseString(inp)
+    dom = dhtmlparser3.parseString(inp)
 
     assert dom.find("sometag")
     assert dom.find("valid")
@@ -250,7 +243,7 @@ def test_recovery_after_unclosed_tag():
     <div class="rating">here is the rating</div>
     """
 
-    dom = dhtmlparser.parseString(inp)
+    dom = dhtmlparser3.parseString(inp)
 
     assert dom.find("div", {"class": "rating"})
 
@@ -260,7 +253,7 @@ def test_recovery_after_is_smaller_than_sign():
     <div class="rating">here is the rating</div>
     """
 
-    dom = dhtmlparser.parseString(inp)
+    dom = dhtmlparser3.parseString(inp)
 
     code = dom.find("code")
 
@@ -274,6 +267,6 @@ def test_equality_of_output_with_comment():
     <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
 </head>
 """
-    dom = dhtmlparser.parseString(inp)
+    dom = dhtmlparser3.parseString(inp)
 
     assert dom.__str__() == inp

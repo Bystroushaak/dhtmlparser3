@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # DHTMLParser DOM creation example.
-from dhtmlparser import *
+from dhtmlparser3 import *
 
 e = HTMLElement("root", [
 		HTMLElement("item", {"param1":"1", "param2":"2"}, [

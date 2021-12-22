@@ -1,13 +1,6 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Interpreter version: python 2.7
-#
-# Imports =====================================================================
 from collections import OrderedDict
 
 
-# Functions & objects =========================================================
 def _lower_if_str(item):
     """
     Try to convert item to lowercase, if it is string.

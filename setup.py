@@ -1,16 +1,10 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Interpreter version: python 2.7
-#
-# Imports =====================================================================
+#! /usr/bin/env python3
 from setuptools import setup
 from setuptools import find_packages
 
 from docs import get_version
 
 
-# Variables ===================================================================
 CHANGELOG = open('CHANGES.rst').read()
 LONG_DESCRIPTION = "\n\n".join([
     open('README.rst').read(),
@@ -18,16 +12,15 @@ LONG_DESCRIPTION = "\n\n".join([
 ])
 
 
-# Actual setup definition =====================================================
 setup(
-    name='pyDHTMLParser',
+    name='DHTMLParser3',
     version=get_version(CHANGELOG),
-    py_modules=['dhtmlparser'],
+    py_modules=['dhtmlparser3'],
 
     author='Bystroushaak',
     author_email='bystrousak@kitakitsune.org',
 
-    url='https://github.com/Bystroushaak/pyDHTMLParser',
+    url='https://github.com/Bystroushaak/DHTMLParser3',
     license='MIT',
     description='Python HTML/XML parser for easy web scraping.',
 

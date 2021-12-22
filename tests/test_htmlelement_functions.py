@@ -4,10 +4,10 @@
 # Interpreter version: python 2.7
 #
 # Imports =====================================================================
-import dhtmlparser
-from dhtmlparser import first
-from dhtmlparser.htmlelement import _rotate_buff
-from dhtmlparser.htmlelement import _closeElements
+import dhtmlparser3
+from dhtmlparser3 import first
+from dhtmlparser3.htmlelement import _rotate_buff
+from dhtmlparser3.htmlelement import _closeElements
 
 
 # Functions & objects =========================================================
@@ -28,18 +28,18 @@ def test_rotate_buff():
 
 
 def test_closeElements():
-    tag = dhtmlparser.HTMLElement("<div>")
-    tag.endtag = dhtmlparser.HTMLElement("</div>")
+    tag = dhtmlparser3.HTMLElement("<div>")
+    tag.endtag = dhtmlparser3.HTMLElement("</div>")
 
     tag.childs = [
-        dhtmlparser.HTMLElement("<xe>")
+        dhtmlparser3.HTMLElement("<xe>")
     ]
 
     xe = tag.find("xe")
     assert xe
     assert not xe[0].endtag
 
-    tag.chids = _closeElements(tag.childs, dhtmlparser.HTMLElement)
+    tag.chids = _closeElements(tag.childs, dhtmlparser3.HTMLElement)
 
     xe = tag.find("xe")
     assert xe

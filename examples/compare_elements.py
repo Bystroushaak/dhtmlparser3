@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-from dhtmlparser import *
+from dhtmlparser3 import *
 
 foo = HTMLElement("<xe one='param'>")
 baz = HTMLElement('<xe one="param">')

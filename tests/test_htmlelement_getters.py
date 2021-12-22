@@ -4,12 +4,12 @@
 # Interpreter version: python 2.7
 #
 # Imports =====================================================================
-import dhtmlparser
-from dhtmlparser import first
+import dhtmlparser3
+from dhtmlparser3 import first
 
 
 # Variables ===================================================================
-DOM = dhtmlparser.parseString("""
+DOM = dhtmlparser3.parseString("""
     <div id=first>
         First div.
         <div id=first.subdiv>
@@ -104,7 +104,7 @@ def test_isNonPairTag_setter():
 
 
 def test_containsParamSubset():
-    dom = dhtmlparser.parseString("<div id=x class=xex></div>")
+    dom = dhtmlparser3.parseString("<div id=x class=xex></div>")
     div = first(dom.find("div"))
 
     assert div.containsParamSubset({"id": "x"})

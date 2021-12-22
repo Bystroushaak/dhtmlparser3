@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-from dhtmlparser import *
+from dhtmlparser3 import *
 
 # if inside container (or other tag), create endtag automatically
 print HTMLElement([

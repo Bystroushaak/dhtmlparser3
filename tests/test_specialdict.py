@@ -6,7 +6,7 @@
 # Imports =====================================================================
 import pytest
 
-from dhtmlparser.specialdict import SpecialDict, _lower_if_str
+from dhtmlparser3.specialdict import SpecialDict, _lower_if_str
 
 
 # Variables ===================================================================

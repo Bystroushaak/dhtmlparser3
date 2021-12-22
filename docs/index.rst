@@ -71,7 +71,18 @@ Interactive example
 
 ::
 
-    >>> import dhtmlparser as d
+    >>> import dhtmlparser3 as d
+        >>> dom = d.parseString("""
+        ... <root>
+        ...  <element name="xex" />
+        ... </root>
+        ... """)
+        >>> print dom
+        <dhtmlparser.HTMLElement instance at 0x240b320>
+        >>> dom.getTagName()  # blank, container element
+        ''
+
+    DOM tree now in memory looks like this
     >>> dom = d.parseString("""
     ... <root>
     ...  <element name="xex" />

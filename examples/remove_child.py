@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-import dhtmlparser as d
+import dhtmlparser3 as d
 
 s = """
 <root>

@@ -4,13 +4,13 @@
 # Interpreter version: python 2.7
 #
 # Imports =====================================================================
-import dhtmlparser
-from dhtmlparser import first
+import dhtmlparser3
+from dhtmlparser3 import first
 
 
 # Functions & objects =========================================================
 def test_find():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         "<div ID='xa' a='b'>obsah xa divu</div> <!-- ID, not id :) -->
          <div id='xex' a='b'>obsah xex divu</div>
@@ -36,7 +36,7 @@ def test_find():
 
 
 def test_find_fn():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         <div id=first>
             First div.
@@ -60,7 +60,7 @@ def test_find_fn():
 
 
 def test_find_params():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         <div id=first>
             First div.
@@ -84,7 +84,7 @@ def test_find_params():
 
 
 def test_findB():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         <div id=first>
             First div.
@@ -103,7 +103,7 @@ def test_findB():
 
 
 def test_wfind():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         <div id=first>
             First div.
@@ -124,7 +124,7 @@ def test_wfind():
 
 
 def test_wfind_complicated():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         <root>
             <some>
@@ -155,7 +155,7 @@ def test_wfind_complicated():
 
 
 def test_wfind_multiple_matches():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         <root>
             <some>
@@ -185,7 +185,7 @@ def test_wfind_multiple_matches():
 
 
 def test_match():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         <root>
             <some>
@@ -213,7 +213,7 @@ def test_match():
     assert xe[2].params["id"] == "last wanted xe"
 
 def test_match_parameters():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         <root>
             <div id="1">
@@ -246,7 +246,7 @@ def test_match_parameters():
 
 
 def test_match_parameters_relative_path():
-    dom = dhtmlparser.parseString(
+    dom = dhtmlparser3.parseString(
         """
         <root>
             <div id="1">

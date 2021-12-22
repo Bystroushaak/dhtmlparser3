@@ -180,7 +180,7 @@ class HTMLQuery(HTMLParser):
 
         This allows to chain :meth:`wfind` calls::
 
-            >>> dom = dhtmlparser.parseString('''
+            >>> dom = dhtmlparser3.parseString('''
             ... <root>
             ...     <some>
             ...         <something>
@@ -199,7 +199,7 @@ class HTMLQuery(HTMLParser):
             ... ''')
             >>> xe = dom.wfind("root").wfind("some").wfind("something").find("xe")
             >>> xe
-            [<dhtmlparser.htmlelement.HTMLElement object at 0x8a979ac>]
+            [<dhtmlparser3.htmlelement.HTMLElement object at 0x8a979ac>]
             >>> str(xe[0])
             '<xe id="wanted xe" />'
 
@@ -254,7 +254,7 @@ class HTMLQuery(HTMLParser):
 
         You can use all arguments used in :meth:`wfind`::
 
-            dom = dhtmlparser.parseString('''
+            dom = dhtmlparser3.parseString('''
                 <root>
                     <div id="1">
                         <div id="5">
