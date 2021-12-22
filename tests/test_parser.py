@@ -102,6 +102,18 @@ def test_tag():
     assert tokenizer.tokenize() == [Element("tag")]
 
 
+def test_tag_with_whitespaces_before_tag_name():
+    tokenizer = Tokenizer("<  tag>")
+
+    assert tokenizer.tokenize() == [Element("tag")]
+
+
+def test_tag_with_whitespaces_after_tag_name():
+    tokenizer = Tokenizer("<  tag  >")
+
+    assert tokenizer.tokenize() == [Element("tag")]
+
+
 def _test_raw_split():
     tokenizer = Tokenizer("""<html><tag params="true"></html>""")
     tokenizer.tokenize()

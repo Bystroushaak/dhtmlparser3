@@ -74,9 +74,11 @@ class Tokenizer:
     def _consume_tag(self):
         self.advance()  # consume <
 
+        self._consume_whitespaces()
+
         if self.char == ">":
+            self.advance()  # consume >
             self.tokens.append(Text("<>"))
-            self.advance()
             return
 
         if self.char == "!" and self.peek_is("-") and self.peek_two_is("-"):
@@ -85,19 +87,28 @@ class Tokenizer:
 
         name = self._consume_token_name()
 
+        self._consume_whitespaces()
+
         if self.char == ">":
+            self.advance()  # consume >
             self.tokens.append(Element(name))
-            self.advance()
             return
 
-    def _cosume_whitespaces(self):
-        pass
+    def _consume_whitespaces(self):
+        if self.char != " " and self.char != "\t":
+            return
+
+        while not self.is_at_end():
+            if self.char != " " and self.char != "\t":
+                return
+
+            self.advance()
 
     def _consume_token_name(self):
         self.buffer = self.char
         while not self.is_at_end():
             if self.peek_is(">") or self.peek_is(" "):
-                self.advance()
+                self.advance()  # move to the >
                 buffer = self.buffer
                 self.buffer = ""
                 return buffer
@@ -243,7 +254,7 @@ def _raw_split(itxt):
     buff = ["", "", "", ""]
     content = ""
     array = []
-    next_state = 0
+    next_state = StateEnum.content
     inside_tag = False
     escaped = False
 
