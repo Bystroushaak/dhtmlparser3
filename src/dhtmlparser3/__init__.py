@@ -76,6 +76,11 @@ class Tokenizer:
 
         self._consume_whitespaces()
 
+        endtag = False
+        if self.char == "/":
+            endtag = True
+            self.advance()
+
         if self.char == ">":
             self.advance()  # consume >
             self.tokens.append(Text("<>"))
@@ -85,15 +90,13 @@ class Tokenizer:
             self._consume_comment()
             return
 
-        el_name = self._consume_token_name()
-
-        parameters = []
+        tag = Tag(self._consume_token_name(), endtag=endtag)
         while not self.is_at_end():
             self._consume_whitespaces()
 
             if self.char == ">":
                 self.advance()  # consume >
-                self.tokens.append(Tag(el_name, parameters))
+                self.tokens.append(tag)
                 return
 
             parameter_name = self._consume_parameter_name()
@@ -101,18 +104,20 @@ class Tokenizer:
 
             if self.char == "/":
                 self.advance()
-                parameters.append(Parameter(parameter_name))
+                if parameter_name:
+                    tag.parameters.append(Parameter(parameter_name))
+                tag.nonpair = True
                 continue
 
             elif self.char == ">":
-                parameters.append(Parameter(parameter_name))
+                tag.parameters.append(Parameter(parameter_name))
                 continue
 
             elif self.char == "=":
                 self.advance()
                 self._consume_whitespaces()
                 parameter_value = self._consume_parameter_value()
-                parameters.append(Parameter(parameter_name, parameter_value))
+                tag.parameters.append(Parameter(parameter_name, parameter_value))
                 continue
 
 
@@ -138,10 +143,13 @@ class Tokenizer:
         self.tokens.append(Text(f"<{self.buffer}"))
 
     def _consume_parameter_name(self):
+        if self.char == "/":
+            return
+
         self.buffer = self.char
         while not self.is_at_end():
             peek = self.peek()
-            if peek in " =/>\t\n":
+            if peek in " <=/>\t\n":
                 self.advance()
                 return self.return_reset_buffer()
 
@@ -156,7 +164,7 @@ class Tokenizer:
         self.buffer = self.char
         while not self.is_at_end():
             peek = self.peek()
-            if peek in " />\t\n":
+            if peek in " </>\t\n":
                 self.advance()
                 return self.return_reset_buffer()
 

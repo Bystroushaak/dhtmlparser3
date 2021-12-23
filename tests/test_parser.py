@@ -196,9 +196,37 @@ def test_tag_with_multiple_parameters():
     ]
 
 
+def test_nonpair_tag():
+    tokenizer = Tokenizer("<tag />")
+
+    assert tokenizer.tokenize() == [
+        Tag("tag", nonpair=True)
+    ]
+
+
+def test_nonpair_tag_parameters():
+    tokenizer = Tokenizer("<tag param=val key='val' />")
+
+    assert tokenizer.tokenize() == [
+        Tag("tag",
+            parameters=[
+                Parameter("param", "val"),
+                Parameter("key", "val"),
+            ],
+            nonpair=True
+        )
+    ]
+
+
+def test_end_tag():
+    tokenizer = Tokenizer("</tag>")
+
+    assert tokenizer.tokenize() == [
+        Tag("tag", endtag=True)
+    ]
+
+
 # + recovery
-# + nonpair tags
-# + endtags
 # + &entities; mixed with tags & text
 # + fail recovery on <tag asd = ""   <tag2> ..
 

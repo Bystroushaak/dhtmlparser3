@@ -19,15 +19,20 @@ class Text:
 
 
 class Tag:
-    def __init__(self, name="", parameters=None):
+    def __init__(self, name="", parameters=None, nonpair=False, endtag=False):
         self.name = name
         self.parameters = [] if parameters is None else parameters
+        self.nonpair = nonpair
+        self.endtag = endtag
 
     def __eq__(self, other):
         if not isinstance(other, Tag):
             return False
 
         if self.name != other.name:
+            return False
+
+        if self.nonpair != other.nonpair:
             return False
 
         if len(self.parameters) != len(other.parameters):
@@ -43,7 +48,10 @@ class Tag:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return f"Element({repr(self.name)}, parameters={repr(self.parameters)})"
+        return (
+            f"Element({repr(self.name)}, parameters={repr(self.parameters)}, "
+            f"nonpair={self.nonpair})"
+        )
 
 
 class Parameter:
