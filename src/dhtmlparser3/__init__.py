@@ -85,21 +85,43 @@ class Tokenizer:
             self._consume_comment()
             return
 
-        name = self._consume_token_name()
+        el_name = self._consume_token_name()
 
-        self._consume_whitespaces()
+        parameters = []
+        while not self.is_at_end():
+            self._consume_whitespaces()
 
-        if self.char == ">":
-            self.advance()  # consume >
-            self.tokens.append(Element(name))
-            return
+            if self.char == ">":
+                self.advance()  # consume >
+                self.tokens.append(Element(el_name, parameters))
+                return
+
+            parameter_name = self._consume_parameter_name()
+            self._consume_whitespaces()
+
+            if self.char == "/":
+                self.advance()
+                parameters.append(Parameter(parameter_name))
+                continue
+
+            elif self.char == ">":
+                parameters.append(Parameter(parameter_name))
+                continue
+
+            elif self.char == "=":
+                self.advance()
+                self._consume_whitespaces()
+                parameter_value = self._consume_parameter_value()
+                parameters.append(Parameter(parameter_name, parameter_value))
+                continue
+
 
     def _consume_whitespaces(self):
-        if self.char != " " and self.char != "\t":
+        if self.char != " " and self.char != "\t" and self.char != "\n":
             return
 
         while not self.is_at_end():
-            if self.char != " " and self.char != "\t":
+            if self.char != " " and self.char != "\t" and self.char != "\n":
                 return
 
             self.advance()
@@ -108,14 +130,67 @@ class Tokenizer:
         self.buffer = self.char
         while not self.is_at_end():
             if self.peek_is(">") or self.peek_is(" "):
-                self.advance()  # move to the >
-                buffer = self.buffer
-                self.buffer = ""
-                return buffer
+                self.advance()  # move to the > or " "
+                return self.return_reset_buffer()
 
             self.buffer += self.advance()
 
         self.tokens.append(Text(f"<{self.buffer}"))
+
+    def _consume_parameter_name(self):
+        self.buffer = self.char
+        while not self.is_at_end():
+            peek = self.peek()
+            if peek in " =/>\t\n":
+                self.advance()
+                return self.return_reset_buffer()
+
+            self.buffer += self.advance()
+
+        self.tokens.append(Text(f"{self.buffer}"))
+
+    def _consume_parameter_value(self):
+        if self.char == '"' or self.char == "'":
+            return self._consume_quoted_parameter_value()
+
+        self.buffer = self.char
+        while not self.is_at_end():
+            peek = self.peek()
+            if peek in " />\t\n":
+                self.advance()
+                return self.return_reset_buffer()
+
+            self.buffer += self.advance()
+
+        self.tokens.append(Text(f"{self.buffer}"))
+
+    def _consume_quoted_parameter_value(self):
+        quote_type = self.char
+        self.advance()
+
+        if self.peek() == quote_type:
+            self.advance()
+            return ""
+
+        is_quoted = False
+        while not self.is_at_end():
+            if self.char == quote_type and not is_quoted:
+                self.advance()
+                return self.return_reset_buffer()
+
+            if self.char == "\\":
+                is_quoted = not is_quoted
+
+                if is_quoted and (self.peek_is(quote_type) or self.peek_is("\\")):
+                    self.advance()
+                    continue
+            else:
+                is_quoted = False
+
+            self.buffer += self.char
+            self.advance()
+
+        self.tokens.append(Text(f"{self.buffer}"))
 
     def _consume_comment(self):
         self.advance()  # consume !
@@ -194,6 +269,11 @@ class Tokenizer:
             new_tokens.append(token)
 
         self.tokens = new_tokens
+
+    def return_reset_buffer(self):
+        buffer = self.buffer
+        self.buffer = ""
+        return buffer
 
     def advance(self):
         self.pointer += 1

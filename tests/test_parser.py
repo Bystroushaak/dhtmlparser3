@@ -29,8 +29,9 @@ def test_text_and_entity_consumption():
     assert tokenizer.tokenize() == [
         Entity("&entity;"),
         Text("Some text."),
-        Entity("&entity2;")
+        Entity("&entity2;"),
     ]
+
 
 def test_entity_mixup_consumption():
     tokenizer = Tokenizer("&entity Some text")
@@ -70,10 +71,7 @@ def test_entity_at_the_end():
 def test_comment():
     tokenizer = Tokenizer("aaa <!-- comment -->")
 
-    assert tokenizer.tokenize() == [
-        Text("aaa "),
-        Comment(" comment ")
-    ]
+    assert tokenizer.tokenize() == [Text("aaa "), Comment(" comment ")]
 
 
 def test_comment_without_end():
@@ -114,6 +112,98 @@ def test_tag_with_whitespaces_after_tag_name():
     assert tokenizer.tokenize() == [Element("tag")]
 
 
+def test_tag_with_nonpair_parameter():
+    tokenizer = Tokenizer("<tag rectangle>")
+
+    assert tokenizer.tokenize() == [
+        Element("tag", parameters=[Parameter("rectangle", "")])
+    ]
+
+
+def test_tag_with_single_unquoted_parameter():
+    tokenizer = Tokenizer("<tag key=value>")
+
+    assert tokenizer.tokenize() == [
+        Element("tag", parameters=[Parameter("key", "value")])
+    ]
+
+
+def test_tag_with_single_unquoted_parameter_spaces():
+    tokenizer = Tokenizer("<  tag   key   =   value  >")
+
+    assert tokenizer.tokenize() == [
+        Element("tag", parameters=[Parameter("key", "value")])
+    ]
+
+
+def test_tag_with_single_quoted_parameter():
+    tokenizer = Tokenizer("<tag key='value'>")
+
+    assert tokenizer.tokenize() == [
+        Element("tag", parameters=[Parameter("key", "value")])
+    ]
+
+
+def test_tag_with_double_quoted_parameter():
+    tokenizer = Tokenizer('<tag key="value">')
+
+    assert tokenizer.tokenize() == [
+        Element("tag", parameters=[Parameter("key", "value")])
+    ]
+
+
+def test_tag_with_double_quoted_parameter_and_escape_seq():
+    tokenizer = Tokenizer('<tag key="a \\" a">')
+
+    assert tokenizer.tokenize() == [
+        Element("tag", parameters=[Parameter("key", 'a " a')])
+    ]
+
+
+def test_tag_with_double_quoted_parameter_and_backslash():
+    tokenizer = Tokenizer('<tag key="a \ a\\\\">')
+
+    assert tokenizer.tokenize() == [
+        Element("tag", parameters=[Parameter("key", "a \ a\\")])
+    ]
+
+
+def test_tag_with_double_quoted_parameter_and_multiple_escape_seq():
+    tokenizer = Tokenizer('<tag key="a \\\\\\" a">')
+
+    assert tokenizer.tokenize() == [
+        Element("tag", parameters=[Parameter("key", 'a \\" a')])
+    ]
+
+
+def test_tag_with_multiple_parameters():
+    tokenizer = Tokenizer(
+        """<tag a=bbb asd = "bsd " @weird=parameters
+                                   key='v a l' rect>"""
+    )
+
+    assert tokenizer.tokenize() == [
+        Element(
+            "tag",
+            parameters=[
+                Parameter("a", "bbb"),
+                Parameter("asd", "bsd "),
+                Parameter("@weird", "parameters"),
+                Parameter("key", "v a l"),
+                Parameter("rect", ""),
+            ],
+        )
+    ]
+
+
+# + recovery
+# + escape sequences
+# + parameters without value
+# + nonpair tags
+# + endtags
+# + fail recovery on <tag asd = ""   <tag2> ..
+
+
 def _test_raw_split():
     tokenizer = Tokenizer("""<html><tag params="true"></html>""")
     tokenizer.tokenize()
@@ -126,9 +216,7 @@ def _test_raw_split():
 
 
 def _test_raw_split_text():
-    splitted = dhtmlparser3._raw_split(
-        """   <html>asd asd"as das</html>   """
-    )
+    splitted = dhtmlparser3._raw_split("""   <html>asd asd"as das</html>   """)
 
     assert splitted
     assert len(splitted) == 5
@@ -140,9 +228,7 @@ def _test_raw_split_text():
 
 
 def _test_raw_split_parameters():
-    splitted = dhtmlparser3._raw_split(
-        """<html><tag params="<html_tag>"></html>"""
-    )
+    splitted = dhtmlparser3._raw_split("""<html><tag params="<html_tag>"></html>""")
 
     assert splitted
     assert len(splitted) == 3
@@ -164,9 +250,7 @@ def _test_raw_split_parameters_quotes():
 
 
 def _test_raw_split_comments():
-    splitted = dhtmlparser3._raw_split(
-        """<html><!-- asd " asd" > asd --></html>"""
-    )
+    splitted = dhtmlparser3._raw_split("""<html><!-- asd " asd" > asd --></html>""")
 
     assert splitted
     assert len(splitted) == 3
@@ -225,9 +309,7 @@ def _test_parse_dom():
 
 
 def _test_parseString():
-    dom = dhtmlparser3.parseString(
-        """<html><tag PARAM="true"></html>"""
-    )
+    dom = dhtmlparser3.parseString("""<html><tag PARAM="true"></html>""")
 
     assert dom.childs
     assert len(dom.childs) == 2
@@ -250,10 +332,7 @@ def _test_parseString():
 
 
 def _test_parseString_cip():
-    dom = dhtmlparser3.parseString(
-        """<html><tag PARAM="true"></html>""",
-        cip=False
-    )
+    dom = dhtmlparser3.parseString("""<html><tag PARAM="true"></html>""", cip=False)
 
     assert dom.childs
     assert len(dom.childs) == 2
@@ -281,9 +360,7 @@ def _test_parseString_cip():
 
 
 def _test_makeDoubleLinked():
-    dom = dhtmlparser3.parseString(
-        """<html><tag PARAM="true"></html>"""
-    )
+    dom = dhtmlparser3.parseString("""<html><tag PARAM="true"></html>""")
 
     dhtmlparser3.makeDoubleLinked(dom)
 
@@ -340,8 +417,11 @@ def _test_multiline_attribute():
     assert dom.find("sometag")
     assert dom.find("valid")
     assert dom.find("ubertag")
-    assert first(dom.find("ubertag")).params["attribute"] == """long attribute
+    assert (
+        first(dom.find("ubertag")).params["attribute"]
+        == """long attribute
                     continues here"""
+    )
     assert dom.find("something_parsable")
 
 

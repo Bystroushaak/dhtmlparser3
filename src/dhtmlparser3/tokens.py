@@ -19,9 +19,9 @@ class Text:
 
 
 class Element:
-    def __init__(self, name=""):
+    def __init__(self, name="", parameters=None):
         self.name = name
-        self.parameters = []
+        self.parameters = [] if parameters is None else parameters
 
     def __eq__(self, other):
         if not isinstance(other, Element):
@@ -30,7 +30,35 @@ class Element:
         if self.name != other.name:
             return False
 
-        if self.parameters != other.parameters:
+        if len(self.parameters) != len(other.parameters):
+            return False
+
+        for my_param, other_param in zip(self.parameters, other.parameters):
+            if my_param != other_param:
+                return False
+
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return f"Element({repr(self.name)}, parameters={repr(self.parameters)})"
+
+
+class Parameter:
+    def __init__(self, key="", value=""):
+        self.key = key
+        self.value = value
+
+    def __eq__(self, other):
+        if not isinstance(other, Parameter):
+            return False
+
+        if self.key != other.key:
+            return False
+
+        if self.value != other.value:
             return False
 
         return True
@@ -39,13 +67,7 @@ class Element:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return f"Element({repr(self.name)}, parameters={self.parameters})"
-
-
-class Parameter:
-    def __init__(self, key="", value=""):
-        self.key = key
-        self.value = value
+        return f"Parameter(key={repr(self.key)}, value={repr(self.value)})"
 
 
 class Comment:
