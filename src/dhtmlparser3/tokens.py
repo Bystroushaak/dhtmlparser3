@@ -18,13 +18,13 @@ class Text:
         return f"Text({repr(self.content)})"
 
 
-class Element:
+class Tag:
     def __init__(self, name="", parameters=None):
         self.name = name
         self.parameters = [] if parameters is None else parameters
 
     def __eq__(self, other):
-        if not isinstance(other, Element):
+        if not isinstance(other, Tag):
             return False
 
         if self.name != other.name:

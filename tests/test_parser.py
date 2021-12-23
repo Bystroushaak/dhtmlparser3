@@ -5,7 +5,7 @@ from dhtmlparser3 import first
 from dhtmlparser3 import Tokenizer
 
 from dhtmlparser3.tokens import Text
-from dhtmlparser3.tokens import Element
+from dhtmlparser3.tokens import Tag
 from dhtmlparser3.tokens import Parameter
 from dhtmlparser3.tokens import Comment
 from dhtmlparser3.tokens import Entity
@@ -97,26 +97,26 @@ def test_empty_tag_continuation():
 def test_tag():
     tokenizer = Tokenizer("<tag>")
 
-    assert tokenizer.tokenize() == [Element("tag")]
+    assert tokenizer.tokenize() == [Tag("tag")]
 
 
 def test_tag_with_whitespaces_before_tag_name():
     tokenizer = Tokenizer("<  tag>")
 
-    assert tokenizer.tokenize() == [Element("tag")]
+    assert tokenizer.tokenize() == [Tag("tag")]
 
 
 def test_tag_with_whitespaces_after_tag_name():
     tokenizer = Tokenizer("<  tag  >")
 
-    assert tokenizer.tokenize() == [Element("tag")]
+    assert tokenizer.tokenize() == [Tag("tag")]
 
 
 def test_tag_with_nonpair_parameter():
     tokenizer = Tokenizer("<tag rectangle>")
 
     assert tokenizer.tokenize() == [
-        Element("tag", parameters=[Parameter("rectangle", "")])
+        Tag("tag", parameters=[Parameter("rectangle", "")])
     ]
 
 
@@ -124,7 +124,7 @@ def test_tag_with_single_unquoted_parameter():
     tokenizer = Tokenizer("<tag key=value>")
 
     assert tokenizer.tokenize() == [
-        Element("tag", parameters=[Parameter("key", "value")])
+        Tag("tag", parameters=[Parameter("key", "value")])
     ]
 
 
@@ -132,7 +132,7 @@ def test_tag_with_single_unquoted_parameter_spaces():
     tokenizer = Tokenizer("<  tag   key   =   value  >")
 
     assert tokenizer.tokenize() == [
-        Element("tag", parameters=[Parameter("key", "value")])
+        Tag("tag", parameters=[Parameter("key", "value")])
     ]
 
 
@@ -140,7 +140,7 @@ def test_tag_with_single_quoted_parameter():
     tokenizer = Tokenizer("<tag key='value'>")
 
     assert tokenizer.tokenize() == [
-        Element("tag", parameters=[Parameter("key", "value")])
+        Tag("tag", parameters=[Parameter("key", "value")])
     ]
 
 
@@ -148,7 +148,7 @@ def test_tag_with_double_quoted_parameter():
     tokenizer = Tokenizer('<tag key="value">')
 
     assert tokenizer.tokenize() == [
-        Element("tag", parameters=[Parameter("key", "value")])
+        Tag("tag", parameters=[Parameter("key", "value")])
     ]
 
 
@@ -156,7 +156,7 @@ def test_tag_with_double_quoted_parameter_and_escape_seq():
     tokenizer = Tokenizer('<tag key="a \\" a">')
 
     assert tokenizer.tokenize() == [
-        Element("tag", parameters=[Parameter("key", 'a " a')])
+        Tag("tag", parameters=[Parameter("key", 'a " a')])
     ]
 
 
@@ -164,7 +164,7 @@ def test_tag_with_double_quoted_parameter_and_backslash():
     tokenizer = Tokenizer('<tag key="a \ a\\\\">')
 
     assert tokenizer.tokenize() == [
-        Element("tag", parameters=[Parameter("key", "a \ a\\")])
+        Tag("tag", parameters=[Parameter("key", "a \ a\\")])
     ]
 
 
@@ -172,7 +172,7 @@ def test_tag_with_double_quoted_parameter_and_multiple_escape_seq():
     tokenizer = Tokenizer('<tag key="a \\\\\\" a">')
 
     assert tokenizer.tokenize() == [
-        Element("tag", parameters=[Parameter("key", 'a \\" a')])
+        Tag("tag", parameters=[Parameter("key", 'a \\" a')])
     ]
 
 
@@ -183,7 +183,7 @@ def test_tag_with_multiple_parameters():
     )
 
     assert tokenizer.tokenize() == [
-        Element(
+        Tag(
             "tag",
             parameters=[
                 Parameter("a", "bbb"),
@@ -197,10 +197,9 @@ def test_tag_with_multiple_parameters():
 
 
 # + recovery
-# + escape sequences
-# + parameters without value
 # + nonpair tags
 # + endtags
+# + &entities; mixed with tags & text
 # + fail recovery on <tag asd = ""   <tag2> ..
 
 

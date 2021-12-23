@@ -7,7 +7,7 @@ from dhtmlparser3.htmlelement import HTMLElement
 from dhtmlparser3.htmlelement import _rotate_buff
 
 from dhtmlparser3.tokens import Text
-from dhtmlparser3.tokens import Element
+from dhtmlparser3.tokens import Tag
 from dhtmlparser3.tokens import Parameter
 from dhtmlparser3.tokens import Comment
 from dhtmlparser3.tokens import Entity
@@ -93,7 +93,7 @@ class Tokenizer:
 
             if self.char == ">":
                 self.advance()  # consume >
-                self.tokens.append(Element(el_name, parameters))
+                self.tokens.append(Tag(el_name, parameters))
                 return
 
             parameter_name = self._consume_parameter_name()
