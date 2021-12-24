@@ -51,7 +51,8 @@ class Tag(Token):
 
     def __repr__(self):
         return (
-            f"Element({repr(self.name)}, parameters={repr(self.parameters)}, "
+            f"{self.__class__.__name__}({repr(self.name)}, "
+            f"parameters={repr(self.parameters)}, "
             f"nonpair={self.nonpair})"
         )
 

@@ -132,6 +132,14 @@ def test_tag_with_single_quoted_parameter():
     assert tokenizer.tokenize() == [Tag("tag", parameters=[Parameter("key", "value")])]
 
 
+def test_tag_fail_recovery():
+    tokenizer = Tokenizer("<tag key='value' <tag2>")
+
+    assert tokenizer.tokenize() == [
+        Tag("tag", parameters=[Parameter("key", "value"), Parameter("<tag2")])
+    ]
+
+
 def test_tag_with_double_quoted_parameter():
     tokenizer = Tokenizer('<tag key="value">')
 
@@ -217,9 +225,18 @@ def test_raw_split():
     ]
 
 
-# + recovery
-# + &entities; mixed with tags & text
-# + fail recovery on <tag asd = ""   <tag2> ..
+def test_mixing_of_entities():
+    tokenizer = Tokenizer("""<html>aaa&entity;aaa<tag params="true">&eq;</html>""")
+
+    assert tokenizer.tokenize() == [
+        Tag("html"),
+        Text("aaa"),
+        Entity("&entity;"),
+        Text("aaa"),
+        Tag("tag", parameters=[Parameter("params", "true")]),
+        Entity("&eq;"),
+        Tag("html", endtag=True),
+    ]
 
 
 def test_raw_split_text():

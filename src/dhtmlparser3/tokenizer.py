@@ -34,7 +34,11 @@ class Tokenizer:
 
     def _scan_token(self):
         if self.char == "<":
-            self._consume_tag()
+            pointer = self.pointer
+            try:
+                self._consume_tag()
+            except IOError:
+                self.tokens.append(Text(self.string[pointer:]))
         elif self.char == "&":
             self._consume_entity()
         else:
@@ -42,7 +46,6 @@ class Tokenizer:
 
     def _consume_tag(self):
         self.advance()  # consume <
-
         self._consume_whitespaces()
 
         endtag = False
@@ -59,7 +62,7 @@ class Tokenizer:
             self._consume_comment()
             return
 
-        tag = Tag(self._consume_token_name(), endtag=endtag)
+        tag = Tag(self._consume_tag_name(), endtag=endtag)
         while not self.is_at_end():
             self._consume_whitespaces()
 
@@ -99,7 +102,7 @@ class Tokenizer:
 
             self.advance()
 
-    def _consume_token_name(self):
+    def _consume_tag_name(self):
         self.buffer = self.char
         while not self.is_at_end():
             if self.peek_is(">") or self.peek_is(" "):
@@ -108,7 +111,7 @@ class Tokenizer:
 
             self.buffer += self.advance()
 
-        self.tokens.append(Text(f"<{self.buffer}"))
+        raise IOError("End of string while parsing tag name!")
 
     def _consume_parameter_name(self):
         if self.char == "/":
@@ -123,7 +126,7 @@ class Tokenizer:
 
             self.buffer += self.advance()
 
-        self.tokens.append(Text(f"{self.buffer}"))
+        raise IOError("End of string while paring parameter name!")
 
     def _consume_parameter_value(self):
         if self.char == '"' or self.char == "'":
@@ -138,7 +141,7 @@ class Tokenizer:
 
             self.buffer += self.advance()
 
-        self.tokens.append(Text(f"{self.buffer}"))
+        raise IOError("End of string while parsing parameter value!")
 
     def _consume_quoted_parameter_value(self):
         quote_type = self.char
@@ -166,7 +169,7 @@ class Tokenizer:
             self.buffer += self.char
             self.advance()
 
-        self.tokens.append(Text(f"{self.buffer}"))
+        raise IOError("End of string while parsing parameter value!")
 
     def _consume_comment(self):
         self.advance()  # consume !
