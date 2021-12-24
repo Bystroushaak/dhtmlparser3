@@ -1,4 +1,9 @@
-class Text:
+class Token:
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class Text(Token):
     def __init__(self, content=""):
         self.content = content
 
@@ -11,14 +16,11 @@ class Text:
 
         return True
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __repr__(self):
         return f"Text({repr(self.content)})"
 
 
-class Tag:
+class Tag(Token):
     def __init__(self, name="", parameters=None, nonpair=False, endtag=False):
         self.name = name
         self.parameters = [] if parameters is None else parameters
@@ -47,9 +49,6 @@ class Tag:
 
         return True
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __repr__(self):
         return (
             f"Element({repr(self.name)}, parameters={repr(self.parameters)}, "
@@ -57,7 +56,7 @@ class Tag:
         )
 
 
-class Parameter:
+class Parameter(Token):
     def __init__(self, key="", value=""):
         self.key = key
         self.value = value
@@ -74,14 +73,11 @@ class Parameter:
 
         return True
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __repr__(self):
         return f"Parameter(key={repr(self.key)}, value={repr(self.value)})"
 
 
-class Comment:
+class Comment(Token):
     def __init__(self, content=""):
         self.content = content
 
@@ -94,14 +90,11 @@ class Comment:
 
         return True
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     def __repr__(self):
         return f"Comment({repr(self.content)})"
 
 
-class Entity:
+class Entity(Token):
     def __init__(self, content=""):
         self.content = content
 
@@ -113,9 +106,6 @@ class Entity:
             return False
 
         return True
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def __repr__(self):
         return f"Entity({repr(self.content)})"
