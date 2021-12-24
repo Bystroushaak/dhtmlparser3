@@ -35,6 +35,9 @@ class Tag:
         if self.nonpair != other.nonpair:
             return False
 
+        if self.endtag != other.endtag:
+            return False
+
         if len(self.parameters) != len(other.parameters):
             return False
 

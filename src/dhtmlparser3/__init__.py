@@ -120,7 +120,6 @@ class Tokenizer:
                 tag.parameters.append(Parameter(parameter_name, parameter_value))
                 continue
 
-
     def _consume_whitespaces(self):
         if self.char != " " and self.char != "\t" and self.char != "\n":
             return

@@ -226,64 +226,65 @@ def test_end_tag():
     ]
 
 
+def test_raw_split():
+    tokenizer = Tokenizer("""<html><tag params="true"></html>""")
+
+    assert tokenizer.tokenize() == [
+        Tag("html"),
+        Tag("tag", parameters=[Parameter("params", "true")]),
+        Tag("html", endtag=True),
+    ]
+
+
 # + recovery
 # + &entities; mixed with tags & text
 # + fail recovery on <tag asd = ""   <tag2> ..
 
 
-def _test_raw_split():
-    tokenizer = Tokenizer("""<html><tag params="true"></html>""")
-    tokenizer.tokenize()
-
-    # assert tokenizer
-    # assert len(splitted) == 3
-    # assert splitted[0] == "<html>"
-    # assert splitted[1] == '<tag params="true">'
-    # assert splitted[2] == "</html>"
 
 
-def _test_raw_split_text():
-    splitted = dhtmlparser3._raw_split("""   <html>asd asd"as das</html>   """)
+def test_raw_split_text():
+    tokenizer = Tokenizer("""   <html>asd asd"as das</html>   """)
 
-    assert splitted
-    assert len(splitted) == 5
-    assert splitted[0] == "   "
-    assert splitted[1] == "<html>"
-    assert splitted[2] == 'asd asd"as das'
-    assert splitted[3] == "</html>"
-    assert splitted[4] == "   "
-
-
-def _test_raw_split_parameters():
-    splitted = dhtmlparser3._raw_split("""<html><tag params="<html_tag>"></html>""")
-
-    assert splitted
-    assert len(splitted) == 3
-    assert splitted[0] == "<html>"
-    assert splitted[1] == '<tag params="<html_tag>">'
-    assert splitted[2] == "</html>"
+    assert tokenizer.tokenize() == [
+        Text("   "),
+        Tag("html"),
+        Text('asd asd"as das'),
+        Tag("html", endtag=True),
+        Text("   "),
+    ]
 
 
-def _test_raw_split_parameters_quotes():
-    splitted = dhtmlparser3._raw_split(
+def test_raw_split_parameters():
+    tokenizer = Tokenizer("""<html><tag params="<html_tag>"></html>""")
+
+    assert tokenizer.tokenize() == [
+        Tag("html"),
+        Tag("tag", parameters=[Parameter("params", "<html_tag>")]),
+        Tag("html", endtag=True),
+    ]
+
+
+def test_raw_split_parameters_quotes():
+    tokenizer = Tokenizer(
         """<html><tag params="some \\"<quoted>\\" text"></html>"""
     )
 
-    assert splitted
-    assert len(splitted) == 3
-    assert splitted[0] == "<html>"
-    assert splitted[1] == '<tag params="some \\"<quoted>\\" text">'
-    assert splitted[2] == "</html>"
+    assert tokenizer.tokenize() == [
+        Tag("html"),
+        Tag("tag", parameters=[Parameter("params", 'some "<quoted>" text')]),
+        Tag("html", endtag=True),
+    ]
 
 
-def _test_raw_split_comments():
-    splitted = dhtmlparser3._raw_split("""<html><!-- asd " asd" > asd --></html>""")
+def test_raw_split_comments():
+    tokenizer = Tokenizer("""<html><!-- asd " asd" > asd --></html>""")
 
-    assert splitted
-    assert len(splitted) == 3
-    assert splitted[0] == "<html>"
-    assert splitted[1] == '<!-- asd " asd" > asd -->'
-    assert splitted[2] == "</html>"
+    assert tokenizer.tokenize() == [
+        Tag("html"),
+        Comment(' asd " asd" > asd '),
+        Tag("html", endtag=True),
+    ]
 
 
 def _test_index_of_end_tag():
