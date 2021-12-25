@@ -1,4 +1,5 @@
 from typing import List
+from typing import Iterator
 
 from dhtmlparser3.tokens import TagToken
 from dhtmlparser3.tokens import TextToken
@@ -14,7 +15,6 @@ class Tokenizer:
 
     def __init__(self, string: str):
         self.string = string
-        self.tokens = []
 
         self.pointer = 0
         self.buffer = ""
@@ -22,15 +22,34 @@ class Tokenizer:
         self.end = len(string) - 1
 
     def tokenize(self) -> List[Token]:
+        return list(self.tokenize_iter())
+
+    def tokenize_iter(self) -> Iterator[Token]:
         if self.end == 0:
-            return []
+            raise StopIteration()
+
+        token = self._scan_token()
+
+        new_tokens = [token]
+        if isinstance(token, EntityToken):
+            new_tokens = [TextToken(token.to_text())]
 
         while not self.is_at_end():
-            self.tokens.append(self._scan_token())
+            token = self._scan_token()
 
-        self._linearize_tokens()
+            if isinstance(token, EntityToken):
+                token = TextToken(token.to_text())
 
-        return self.tokens
+            if isinstance(new_tokens[-1], TextToken) and isinstance(token, TextToken):
+                new_tokens[-1].content += token.content
+                continue
+
+            yield from new_tokens
+            new_tokens.clear()
+            new_tokens.append(token)
+
+        if new_tokens:
+            yield from new_tokens
 
     def _scan_token(self):
         if self.char == "<":
@@ -226,30 +245,6 @@ class Tokenizer:
             self.buffer += char
 
         return TextToken(self.return_reset_buffer())
-
-    def _linearize_tokens(self):
-        if not self.tokens:
-            return
-
-        if isinstance(self.tokens[0], EntityToken):
-            new_tokens = [TextToken(self.tokens.pop(0).to_text())]
-        else:
-            new_tokens = [self.tokens.pop(0)]
-
-        while self.tokens:
-            token = self.tokens.pop(0)
-
-            if isinstance(token, EntityToken):
-                self.tokens.insert(0, TextToken(token.to_text()))
-                continue
-
-            if isinstance(new_tokens[-1], TextToken) and isinstance(token, TextToken):
-                new_tokens[-1].content += token.content
-                continue
-
-            new_tokens.append(token)
-
-        self.tokens = new_tokens
 
     def return_reset_buffer(self):
         buffer = self.buffer

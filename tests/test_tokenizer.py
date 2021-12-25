@@ -51,7 +51,9 @@ def test_possible_entity():
         TextToken("&a a;"),
     ]
 
-    assert tokenizer.tokens == [TextToken("aaaa&a a;")]
+    tokenizer = Tokenizer("aaaa&a a;")
+
+    assert tokenizer.tokenize() == [TextToken("aaaa&a a;")]
 
 
 def test_entity_at_the_end():
