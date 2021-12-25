@@ -26,7 +26,7 @@ class Tokenizer:
             return []
 
         while not self.is_at_end():
-            self._scan_token()
+            self.tokens.append(self._scan_token())
 
         self._linearize_tokens()
 
@@ -36,13 +36,13 @@ class Tokenizer:
         if self.char == "<":
             pointer = self.pointer
             try:
-                self._consume_tag()
+                return self._consume_tag()
             except IOError:
-                self.tokens.append(TextToken(self.string[pointer:]))
+                return TextToken(self.string[pointer:])
         elif self.char == "&":
-            self._consume_entity()
+            return self._consume_entity()
         else:
-            self._consume_text()
+            return self._consume_text()
 
     def _consume_tag(self):
         self.advance()  # consume <
@@ -55,12 +55,10 @@ class Tokenizer:
 
         if self.char == ">":
             self.advance()  # consume >
-            self.tokens.append(TextToken("<>"))
-            return
+            return TextToken("<>")
 
         if self.char == "!" and self.peek_is("-") and self.peek_two_is("-"):
-            self._consume_comment()
-            return
+            return self._consume_comment()
 
         tag = TagToken(self._consume_tag_name(), endtag=endtag)
         while not self.is_at_end():
@@ -68,8 +66,7 @@ class Tokenizer:
 
             if self.char == ">":
                 self.advance()  # consume >
-                self.tokens.append(tag)
-                return
+                return tag
 
             parameter_name = self._consume_parameter_name()
             self._consume_whitespaces()
@@ -91,6 +88,8 @@ class Tokenizer:
                 parameter_value = self._consume_parameter_value()
                 tag.parameters.append(ParameterToken(parameter_name, parameter_value))
                 continue
+
+        raise IOError("End of string while parsing tag!")
 
     def _consume_whitespaces(self):
         if self.char != " " and self.char != "\t" and self.char != "\n":
@@ -180,16 +179,14 @@ class Tokenizer:
             char = self.advance()
 
             if char == "-" and self.peek_is("-") and self.peek_two_is(">"):
-                self.tokens.append(CommentToken(self.buffer))
                 self.advance()  # consume -
                 self.advance()  # consume -
                 self.advance()  # consume >
-                return
+                return CommentToken(self.return_reset_buffer())
 
             self.buffer += char
 
-        self.tokens.append(TextToken(f"<!--{self.buffer}"))
-        self.buffer = ""
+        return TextToken(f"<!--{self.return_reset_buffer()}")
 
     def _consume_entity(self):
         length = 0
@@ -199,25 +196,24 @@ class Tokenizer:
             length += 1
 
             if char == " ":
-                return
+                return TextToken(self.return_reset_buffer())
 
             if length > self.MAX_ENTITY_LENGTH:
-                return
+                return TextToken(self.return_reset_buffer())
 
             self.buffer += char
 
             if char == ";":
                 if self.buffer != "&;":
-                    self.tokens.append(EntityToken(self.buffer))
-                    self.buffer = ""
-
                     if not self.is_at_end():
                         self.advance()
 
-                return
+                    return EntityToken(self.return_reset_buffer())
+
+                return TextToken(self.return_reset_buffer())
 
         if self.buffer:
-            self.tokens.append(TextToken(self.buffer))
+            return TextToken(self.return_reset_buffer())
 
     def _consume_text(self):
         self.buffer += self.char
@@ -225,14 +221,11 @@ class Tokenizer:
             char = self.advance()
 
             if char == "<" or char == "&":
-                self.tokens.append(TextToken(self.buffer))
-                self.buffer = ""
-                return
+                return TextToken(self.return_reset_buffer())
 
             self.buffer += char
 
-        self.tokens.append(TextToken(self.buffer))
-        self.buffer = ""
+        return TextToken(self.return_reset_buffer())
 
     def _linearize_tokens(self):
         if not self.tokens:
