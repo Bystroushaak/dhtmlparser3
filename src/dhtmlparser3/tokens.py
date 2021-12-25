@@ -3,12 +3,12 @@ class Token:
         return not self.__eq__(other)
 
 
-class Text(Token):
+class TextToken(Token):
     def __init__(self, content=""):
         self.content = content
 
     def __eq__(self, other):
-        if not isinstance(other, Text):
+        if not isinstance(other, TextToken):
             return False
 
         if self.content != other.content:
@@ -17,10 +17,10 @@ class Text(Token):
         return True
 
     def __repr__(self):
-        return f"Text({repr(self.content)})"
+        return f"{self.__class__.__name__}({repr(self.content)})"
 
 
-class Tag(Token):
+class TagToken(Token):
     def __init__(self, name="", parameters=None, nonpair=False, endtag=False):
         self.name = name
         self.parameters = [] if parameters is None else parameters
@@ -28,7 +28,7 @@ class Tag(Token):
         self.endtag = endtag
 
     def __eq__(self, other):
-        if not isinstance(other, Tag):
+        if not isinstance(other, TagToken):
             return False
 
         if self.name != other.name:
@@ -57,13 +57,13 @@ class Tag(Token):
         )
 
 
-class Parameter(Token):
+class ParameterToken(Token):
     def __init__(self, key="", value=""):
         self.key = key
         self.value = value
 
     def __eq__(self, other):
-        if not isinstance(other, Parameter):
+        if not isinstance(other, ParameterToken):
             return False
 
         if self.key != other.key:
@@ -75,15 +75,15 @@ class Parameter(Token):
         return True
 
     def __repr__(self):
-        return f"Parameter(key={repr(self.key)}, value={repr(self.value)})"
+        return f"{self.__class__.__name__}(key={repr(self.key)}, value={repr(self.value)})"
 
 
-class Comment(Token):
+class CommentToken(Token):
     def __init__(self, content=""):
         self.content = content
 
     def __eq__(self, other):
-        if not isinstance(other, Comment):
+        if not isinstance(other, CommentToken):
             return False
 
         if self.content != other.content:
@@ -92,15 +92,44 @@ class Comment(Token):
         return True
 
     def __repr__(self):
-        return f"Comment({repr(self.content)})"
+        return f"{self.__class__.__name__}({repr(self.content)})"
 
 
-class Entity(Token):
+class EntityToken(Token):
+    NAMED_ENTITIES = {
+        "&amp;": "&",
+        "&lt;": "<",
+        "&gt;": ">",
+        "&nonbreakingspace;": u'\xa0',
+        "&nbsp;": u'\xa0',
+        "&quot;": '"',
+        "&apos;": "'",
+        "&cent;": "¢",
+        "&pound;": "£",
+        "&yen;": "¥",
+        "&euro;": "€",
+        "&copy;": "©",
+        "&reg;": "®",
+    }
+
     def __init__(self, content=""):
-        self.content = content
+        self.content = content.lower()
+
+    def to_text(self):
+        representation = self.NAMED_ENTITIES.get(self.content)
+        if representation:
+            return representation
+
+        if self.content.startswith("&#x"):
+            return chr(int("0" + self.content[2:-1], 16))
+
+        if self.content.startswith("&#"):
+            return chr(int(self.content[2:-1]))
+
+        return self.content
 
     def __eq__(self, other):
-        if not isinstance(other, Entity):
+        if not isinstance(other, EntityToken):
             return False
 
         if self.content != other.content:
@@ -109,4 +138,4 @@ class Entity(Token):
         return True
 
     def __repr__(self):
-        return f"Entity({repr(self.content)})"
+        return f"{self.__class__.__name__}({repr(self.content)})"

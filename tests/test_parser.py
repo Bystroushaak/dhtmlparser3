@@ -4,11 +4,11 @@ import dhtmlparser3
 from dhtmlparser3 import first
 from dhtmlparser3.tokenizer import Tokenizer
 
-from dhtmlparser3.tokens import Text
-from dhtmlparser3.tokens import Tag
-from dhtmlparser3.tokens import Parameter
-from dhtmlparser3.tokens import Comment
-from dhtmlparser3.tokens import Entity
+from dhtmlparser3.tokens import TextToken
+from dhtmlparser3.tokens import TagToken
+from dhtmlparser3.tokens import ParameterToken
+from dhtmlparser3.tokens import CommentToken
+from dhtmlparser3.tokens import EntityToken
 
 
 def _test_index_of_end_tag():
