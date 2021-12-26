@@ -153,7 +153,10 @@ class Tokenizer:
         self.buffer = self.char
         while not self.is_at_end():
             peek = self.peek()
-            if peek in " </>\t\n":
+            if peek in " </>'\"\t\n":
+                if peek == "'" or peek == '"':
+                    self.advance()
+
                 self.advance()
                 return self.return_reset_buffer()
 

@@ -72,7 +72,7 @@ def test_multiline_attribute():
     assert dom.c[4].is_non_pair
 
 
-def _test_recovery_after_invalid_tag():
+def test_recovery_after_invalid_tag():
     inp = """<sometag />
 <invalid tag=something">notice that quote is not properly started</invalid>
 <something_parsable />
@@ -80,17 +80,18 @@ def _test_recovery_after_invalid_tag():
 
     dom = dhtmlparser3.parse(inp)
 
-    assert len(dom.content) == 3
+    assert len(dom.content) == 6
 
     assert dom.content[0].name == "sometag"
     assert dom.content[0].is_non_pair
 
-    assert dom.content[2].name == "something_parsable"
-    assert dom.content[2].is_non_pair
+    assert dom.content[2].name == "invalid"
+    assert dom.c[2].parameters == {"tag": "something"}
+    assert dom.c[2].c[0].content == "notice that quote is not properly started"
+    assert not dom.content[2].is_non_pair
 
-    # assert dom.find("sometag")
-    # assert not dom.find("invalid")
-    # assert dom.find("something_parsable")
+    assert dom.content[4].name == "something_parsable"
+    assert dom.content[4].is_non_pair
 
 
 def _test_recovery_after_unclosed_tag():

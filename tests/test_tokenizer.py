@@ -291,3 +291,12 @@ def test_multiline_attribute():
     assert tokens[0].parameters[0].key == "attribute"
     assert tokens[0].parameters[0].value == """long attribute
                                continues here"""
+
+
+def test_recovery_from_invalid_quote():
+    tokenizer = Tokenizer("""<invalid tag=something">notice""")
+
+    assert tokenizer.tokenize() == [
+        TagToken("invalid", parameters=[ParameterToken("tag", "something")]),
+        TextToken("notice"),
+    ]
