@@ -1,6 +1,5 @@
 from dhtmlparser3.tokens import TagToken
 from dhtmlparser3.tokens import TextToken
-from dhtmlparser3.tokens import EntityToken
 from dhtmlparser3.tokens import CommentToken
 from dhtmlparser3.tokens import ParameterToken
 
@@ -215,7 +214,7 @@ def test_end_tag():
     assert tokenizer.tokenize() == [TagToken("tag", is_end_tag=True)]
 
 
-def test_raw_split():
+def test_split():
     tokenizer = Tokenizer("""<html><tag params="true"></html>""")
 
     assert tokenizer.tokenize() == [
@@ -237,7 +236,7 @@ def test_mixing_of_entities():
     ]
 
 
-def test_raw_split_text():
+def test_split_text():
     tokenizer = Tokenizer("""   <html>asd asd"as das</html>   """)
 
     assert tokenizer.tokenize() == [
@@ -249,7 +248,7 @@ def test_raw_split_text():
     ]
 
 
-def test_raw_split_parameters():
+def test_parameters():
     tokenizer = Tokenizer("""<html><tag params="<html_tag>"></html>""")
 
     assert tokenizer.tokenize() == [
@@ -259,7 +258,7 @@ def test_raw_split_parameters():
     ]
 
 
-def test_raw_split_parameters_quotes():
+def test_parameters_quotes():
     tokenizer = Tokenizer("""<html><tag params="some \\"<quoted>\\" text"></html>""")
 
     assert tokenizer.tokenize() == [
@@ -269,7 +268,7 @@ def test_raw_split_parameters_quotes():
     ]
 
 
-def test_raw_split_comments():
+def test_nested_comments():
     tokenizer = Tokenizer("""<html><!-- asd " asd" > asd --></html>""")
 
     assert tokenizer.tokenize() == [
