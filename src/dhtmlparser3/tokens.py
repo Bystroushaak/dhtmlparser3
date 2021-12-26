@@ -63,12 +63,12 @@ class TagToken(Token):
     def __repr__(self):
         parameters = (
             f"{repr(self.name)}",
-            f"parameters={repr(self.parameters)}"
+            f"parameters={repr(self.parameters)}",
             f"nonpair={self.is_non_pair}",
             f"is_end_tag={self.is_end_tag}",
         )
 
-        return f"{self.__class__.__name__}({' ,'.join(parameters)})"
+        return f"{self.__class__.__name__}({', '.join(parameters)})"
 
 
 class ParameterToken(Token):
