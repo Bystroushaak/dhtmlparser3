@@ -277,3 +277,18 @@ def test_raw_split_comments():
         CommentToken(' asd " asd" > asd '),
         TagToken("html", is_end_tag=True),
     ]
+
+
+def test_multiline_attribute():
+    tokenizer = Tokenizer(
+        """<ubertag attribute="long attribute
+                               continues here">"""
+    )
+
+    tokens = tokenizer.tokenize()
+
+    assert len(tokens) == 1
+    assert tokens[0].name == "ubertag"
+    assert tokens[0].parameters[0].key == "attribute"
+    assert tokens[0].parameters[0].value == """long attribute
+                               continues here"""

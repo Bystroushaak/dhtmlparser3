@@ -71,7 +71,8 @@ class Parser:
 
                 # correctly closed element on top of the stack
                 if closed_element is top_element:
-                    top_element = element_stack.pop()
+                    element_stack.pop()
+                    top_element = element_stack[-1]
                     continue
 
                 # find which one was closed and treat all others as nonpair
