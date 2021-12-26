@@ -1,16 +1,181 @@
 import gc
 from enum import IntEnum
+from typing import Iterator
 
 from dhtmlparser3 import specialdict
 
 from dhtmlparser3.htmlelement import HTMLElement
 from dhtmlparser3.htmlelement import _rotate_buff
 
-from dhtmlparser3.tokens import Text
-from dhtmlparser3.tokens import Tag
-from dhtmlparser3.tokens import Parameter
-from dhtmlparser3.tokens import Comment
-from dhtmlparser3.tokens import Entity
+from dhtmlparser3.tags.tag import Tag
+
+from dhtmlparser3.tokens import Token
+from dhtmlparser3.tokens import TagToken
+from dhtmlparser3.tokens import TextToken
+from dhtmlparser3.tokens import EntityToken
+from dhtmlparser3.tokens import CommentToken
+from dhtmlparser3.tokens import ParameterToken
+from dhtmlparser3.tokenizer import Tokenizer
+
+
+class Parser:
+    NONPAIR_TAGS = {
+        "br",
+        "hr",
+        "img",
+        "input",
+        # "link",
+        "meta",
+        "spacer",
+        "frame",
+        "base"
+    }
+
+    def __init__(self, string: str, case_insensitive_parameters=True):
+        # remove UTF BOM (prettify fails if not)
+        if len(string) > 3 and string[:3] == "\xef\xbb\xbf":
+            string = string[3:]
+
+        if case_insensitive_parameters:
+            Tag._DICT_INSTANCE = specialdict.SpecialDict
+        else:
+            Tag._DICT_INSTANCE = dict
+
+        self.tokenizer = Tokenizer(string)
+
+    def parse_dom(self):
+        root_elem = Tag("")
+
+        top_element = root_elem
+        element_stack = [root_elem]
+        # for token in self.tokenizer.tokenize_iter():
+        tokens = self.tokenizer.tokenize()
+        for token in tokens:
+            if isinstance(token, TextToken) or isinstance(token, CommentToken):
+                top_element.content.append(token)
+                continue
+
+            if token.is_non_pair:
+                top_element.content.append(token.to_tag())
+                continue
+
+            if token.is_end_tag:
+                closed_element = [x for x in reversed(element_stack)
+                                  if x.name == token.name]
+
+                # random closing tag which doesn't match anything
+                if not closed_element:
+                    continue
+
+                closed_element = closed_element[0]
+
+                # correctly closed element on top of the stack
+                if closed_element is top_element:
+                    top_element = element_stack.pop()
+                    continue
+
+                # find which one was closed and treat all others as nonpair
+                closed_element_index = element_stack.index(closed_element)
+                nonpairs = element_stack[closed_element_index:]
+                element_stack = element_stack[:closed_element_index]
+
+                # TODO: unroll nonpairs
+
+                continue
+
+            new_top_element = token.to_tag()
+            top_element.content.append(new_top_element)
+            element_stack.append(new_top_element)
+            top_element = new_top_element
+
+        if len(root_elem.content) == 1:
+            return root_elem.content[0]
+
+        return root_elem
+
+
+
+    def _parseDOM(self, istack):
+        """
+        Recursively go through element array and create DOM.
+
+        Args:
+            istack (list): List of :class:`.HTMLElement` objects.
+
+        Returns:
+            list: DOM tree as list.
+        """
+        ostack = []
+
+        index = 0
+        while index < len(istack):
+            el = istack[index]
+
+            # check if this is pair tag
+            end_tag_index = self._index_of_end_tag(istack[index:])
+
+            if end_tag_index == 0 and self._isnt_nonpair_or_end_or_comment(el):
+                el.isNonPairTag(True)
+
+            if end_tag_index == 0:
+                if not el.isEndTag():
+                    ostack.append(el)
+            else:
+                el.childs = _parseDOM(istack[index + 1 : end_tag_index + index])
+                el.is_end_tag = istack[end_tag_index + index]  # reference to endtag
+                el.is_end_tag.openertag = el
+
+                ostack.append(el)
+                ostack.append(el.is_end_tag)
+
+                index = end_tag_index + index
+
+            index += 1
+
+        return ostack
+
+    @staticmethod
+    def _isnt_nonpair_or_end_or_comment(el: HTMLElement):
+        return not (el.isNonPairTag() or el.isEndTag() or el.isComment())
+
+    def _index_of_end_tag(self, istack):
+        """
+        Go through `istack` and search endtag. Element at first index is considered
+        as opening tag.
+
+        Args:
+            istack (list): List of :class:`.HTMLElement` objects.
+
+        Returns:
+            int: Index of end tag or 0 if not found.
+        """
+        if not istack:
+            return 0
+
+        if not istack[0].isOpeningTag():
+            return 0
+
+        cnt = 0
+        opener = istack[0]
+        for index, el in enumerate(istack[1:]):
+            if el.isOpeningTag() and el.getTagName().lower() == opener.getTagName().lower():
+                cnt += 1
+
+            elif el.isEndTagTo(opener):
+                if cnt == 0:
+                    return index + 1
+
+                cnt -= 1
+
+        return 0
+
+
+
+def parse(string: str, case_insensitive_parameters=True):
+    parser = Parser(string, case_insensitive_parameters)
+    return parser.parse_dom()
+
+
 
 
 class StateEnum(IntEnum):
