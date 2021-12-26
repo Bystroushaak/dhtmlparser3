@@ -191,7 +191,7 @@ def test_tag_with_multiple_parameters():
 def test_nonpair_tag():
     tokenizer = Tokenizer("<tag />")
 
-    assert tokenizer.tokenize() == [TagToken("tag", nonpair=True)]
+    assert tokenizer.tokenize() == [TagToken("tag", is_non_pair=True)]
 
 
 def test_nonpair_tag_parameters():
@@ -204,7 +204,7 @@ def test_nonpair_tag_parameters():
                 ParameterToken("param", "val"),
                 ParameterToken("key", "val"),
             ],
-            nonpair=True,
+            is_non_pair=True,
         )
     ]
 
@@ -212,7 +212,7 @@ def test_nonpair_tag_parameters():
 def test_end_tag():
     tokenizer = Tokenizer("</tag>")
 
-    assert tokenizer.tokenize() == [TagToken("tag", endtag=True)]
+    assert tokenizer.tokenize() == [TagToken("tag", is_end_tag=True)]
 
 
 def test_raw_split():
@@ -221,7 +221,7 @@ def test_raw_split():
     assert tokenizer.tokenize() == [
         TagToken("html"),
         TagToken("tag", parameters=[ParameterToken("params", "true")]),
-        TagToken("html", endtag=True),
+        TagToken("html", is_end_tag=True),
     ]
 
 
@@ -233,7 +233,7 @@ def test_mixing_of_entities():
         TextToken("aaa&aaa"),
         TagToken("tag", parameters=[ParameterToken("params", "true")]),
         TextToken("<"),
-        TagToken("html", endtag=True),
+        TagToken("html", is_end_tag=True),
     ]
 
 
@@ -244,7 +244,7 @@ def test_raw_split_text():
         TextToken("   "),
         TagToken("html"),
         TextToken('asd asd"as das'),
-        TagToken("html", endtag=True),
+        TagToken("html", is_end_tag=True),
         TextToken("   "),
     ]
 
@@ -255,7 +255,7 @@ def test_raw_split_parameters():
     assert tokenizer.tokenize() == [
         TagToken("html"),
         TagToken("tag", parameters=[ParameterToken("params", "<html_tag>")]),
-        TagToken("html", endtag=True),
+        TagToken("html", is_end_tag=True),
     ]
 
 
@@ -265,7 +265,7 @@ def test_raw_split_parameters_quotes():
     assert tokenizer.tokenize() == [
         TagToken("html"),
         TagToken("tag", parameters=[ParameterToken("params", 'some "<quoted>" text')]),
-        TagToken("html", endtag=True),
+        TagToken("html", is_end_tag=True),
     ]
 
 
@@ -275,5 +275,5 @@ def test_raw_split_comments():
     assert tokenizer.tokenize() == [
         TagToken("html"),
         CommentToken(' asd " asd" > asd '),
-        TagToken("html", endtag=True),
+        TagToken("html", is_end_tag=True),
     ]

@@ -1,9 +1,9 @@
 from typing import List
 from typing import Iterator
 
+from dhtmlparser3.tokens import Token
 from dhtmlparser3.tokens import TagToken
 from dhtmlparser3.tokens import TextToken
-from dhtmlparser3.tokens import Token
 from dhtmlparser3.tokens import EntityToken
 from dhtmlparser3.tokens import CommentToken
 from dhtmlparser3.tokens import ParameterToken
@@ -67,9 +67,9 @@ class Tokenizer:
         self.advance()  # consume <
         self._consume_whitespaces()
 
-        endtag = False
+        is_end_tag = False
         if self.char == "/":
-            endtag = True
+            is_end_tag = True
             self.advance()
 
         if self.char == ">":
@@ -79,7 +79,7 @@ class Tokenizer:
         if self.char == "!" and self.peek_is("-") and self.peek_two_is("-"):
             return self._consume_comment()
 
-        tag = TagToken(self._consume_tag_name(), endtag=endtag)
+        tag = TagToken(self._consume_tag_name(), is_end_tag=is_end_tag)
         while not self.is_at_end():
             self._consume_whitespaces()
 
@@ -94,7 +94,7 @@ class Tokenizer:
                 self.advance()
                 if parameter_name:
                     tag.parameters.append(ParameterToken(parameter_name))
-                tag.nonpair = True
+                tag.is_non_pair = True
                 continue
 
             elif self.char == ">":

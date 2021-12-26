@@ -1,3 +1,6 @@
+from dhtmlparser3.tags.tag import Tag
+
+
 class Token:
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -21,11 +24,19 @@ class TextToken(Token):
 
 
 class TagToken(Token):
-    def __init__(self, name="", parameters=None, nonpair=False, endtag=False):
+    def __init__(self, name="", parameters=None, is_non_pair=False, is_end_tag=False):
         self.name = name
         self.parameters = [] if parameters is None else parameters
-        self.nonpair = nonpair
-        self.endtag = endtag
+        self.is_non_pair = is_non_pair
+        self.is_end_tag = is_end_tag
+
+    def to_tag(self):
+        tag = Tag(self.name, is_non_pair=self.is_non_pair)
+
+        for parameter in self.parameters:
+            tag.parameters[parameter.key] = parameter.value
+
+        return tag
 
     def __eq__(self, other):
         if not isinstance(other, TagToken):
@@ -34,10 +45,10 @@ class TagToken(Token):
         if self.name != other.name:
             return False
 
-        if self.nonpair != other.nonpair:
+        if self.is_non_pair != other.is_non_pair:
             return False
 
-        if self.endtag != other.endtag:
+        if self.is_end_tag != other.is_end_tag:
             return False
 
         if len(self.parameters) != len(other.parameters):
@@ -50,11 +61,14 @@ class TagToken(Token):
         return True
 
     def __repr__(self):
-        return (
-            f"{self.__class__.__name__}({repr(self.name)}, "
-            f"parameters={repr(self.parameters)}, "
-            f"nonpair={self.nonpair})"
+        parameters = (
+            f"{repr(self.name)}",
+            f"parameters={repr(self.parameters)}"
+            f"nonpair={self.is_non_pair}",
+            f"is_end_tag={self.is_end_tag}",
         )
+
+        return f"{self.__class__.__name__}({' ,'.join(parameters)})"
 
 
 class ParameterToken(Token):
@@ -75,7 +89,11 @@ class ParameterToken(Token):
         return True
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(key={repr(self.key)}, value={repr(self.value)})"
+        parameters = (
+            f"key={repr(self.key)}",
+            f"value={repr(self.value)}"
+        )
+        return f"{self.__class__.__name__}({', '.join(parameters)})"
 
 
 class CommentToken(Token):
@@ -100,8 +118,8 @@ class EntityToken(Token):
         "&amp;": "&",
         "&lt;": "<",
         "&gt;": ">",
-        "&nonbreakingspace;": u'\xa0',
-        "&nbsp;": u'\xa0',
+        "&nonbreakingspace;": "\xa0",
+        "&nbsp;": "\xa0",
         "&quot;": '"',
         "&apos;": "'",
         "&cent;": "¢",
