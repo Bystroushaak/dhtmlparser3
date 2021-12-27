@@ -1,16 +1,7 @@
 import pytest
 
 import dhtmlparser3
-from dhtmlparser3 import first
-from dhtmlparser3.tokenizer import Tokenizer
-
-from dhtmlparser3.tags.tag import Tag
-
-from dhtmlparser3.tokens import TextToken
-from dhtmlparser3.tokens import TagToken
-from dhtmlparser3.tokens import ParameterToken
-from dhtmlparser3.tokens import CommentToken
-from dhtmlparser3.tokens import EntityToken
+from dhtmlparser3.tags.comment import Comment
 
 
 def test_parse_simple_string():
@@ -109,7 +100,7 @@ def test_recovery_after_unclosed_tag():
 
     assert dom.name == "code"
     assert dom.c[0] == "Bla</code\n"
-    assert dom.c[1] == CommentToken(" ")
+    assert dom.c[1] == Comment(" ")
     assert dom.c[3].name == "div"
     assert dom.c[3].p == {"class": "rating"}
 
@@ -138,41 +129,3 @@ def test_non_pair_structure():
     assert not dom.c[1].content
     assert dom.c[2].name == "hr"
     assert not dom.c[2].content
-
-
-def test_double_link():
-    dom = dhtmlparser3.parse("""<html><tag PARAM="true"></html>""")
-    dom.double_link()
-
-    assert dom.c[0].parent == dom
-
-
-def test_remove_tags():
-    dom = dhtmlparser3.parse("a<b>xax<i>xe</i>xi</b>d")
-    assert dom.remove_tags() == "axaxxexid"
-
-    dom = dhtmlparser3.parse("<b></b>")
-    assert not dom.remove_tags()
-
-    dom = dhtmlparser3.parse("<b><i></b>")
-    assert not dom.remove_tags()
-
-    dom = dhtmlparser3.parse("<b><!-- asd --><i></b>")
-    assert not dom.remove_tags()
-
-
-# def _test_remove_tags_str_input():
-#     inp = "a<b>xax<i>xe</i>xi</b>d"
-#
-#     assert dhtmlparser3.removeTags(inp) == "axaxxexid"
-
-
-# def _test_equality_of_output_with_comment():
-#     inp = """<head>
-#     <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
-# </head>
-# """
-#     dom = dhtmlparser3.parseString(inp)
-#
-#     assert dom.__str__() == inp
-
