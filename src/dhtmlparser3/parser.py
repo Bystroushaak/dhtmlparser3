@@ -45,11 +45,11 @@ class Parser:
                 top_element.content.append(token)
                 continue
 
-            if token.is_non_pair:
+            elif token.is_non_pair:
                 top_element.content.append(token.to_tag())
                 continue
 
-            if token.is_end_tag:
+            elif token.is_end_tag:
                 closed_element = [
                     x for x in reversed(element_stack) if x.name == token.name
                 ]
