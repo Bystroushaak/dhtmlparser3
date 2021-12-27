@@ -6,6 +6,7 @@ from dhtmlparser3.tokenizer import Tokenizer
 from dhtmlparser3.specialdict import SpecialDict
 
 from dhtmlparser3.tags.tag import Tag
+from dhtmlparser3.tags.comment import Comment
 
 
 class Parser:
@@ -46,7 +47,7 @@ class Parser:
                 continue
 
             elif isinstance(token, CommentToken):
-                top_element.content.append(token)
+                top_element.content.append(Comment(token.content))
                 continue
 
             elif token.is_non_pair:
