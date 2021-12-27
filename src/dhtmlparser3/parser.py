@@ -41,7 +41,11 @@ class Parser:
         top_element = root_elem
         element_stack = [root_elem]
         for token in self.tokenizer.tokenize_iter():
-            if isinstance(token, TextToken) or isinstance(token, CommentToken):
+            if isinstance(token, TextToken):
+                top_element.content.append(token.content)
+                continue
+
+            elif isinstance(token, CommentToken):
                 top_element.content.append(token)
                 continue
 

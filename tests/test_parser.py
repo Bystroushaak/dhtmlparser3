@@ -68,7 +68,7 @@ def test_multiline_attribute():
 
     assert dom.c[2].c[1].name == "valid"
     assert not dom.c[2].c[1].is_non_pair
-    assert dom.c[2].c[1].c[0].content == "notice that quote is not properly started"
+    assert dom.c[2].c[1].c[0] == "notice that quote is not properly started"
 
     assert dom.c[4].name == "something_parsable"
     assert dom.c[4].is_non_pair
@@ -89,7 +89,7 @@ def test_recovery_after_invalid_tag():
 
     assert dom.content[2].name == "invalid"
     assert dom.c[2].parameters == {"tag": "something"}
-    assert dom.c[2].c[0].content == "notice that quote is not properly started"
+    assert dom.c[2].c[0] == "notice that quote is not properly started"
     assert not dom.content[2].is_non_pair
 
     assert dom.content[4].name == "something_parsable"
@@ -108,7 +108,7 @@ def test_recovery_after_unclosed_tag():
     assert len(dom.c) == 5
 
     assert dom.name == "code"
-    assert dom.c[0] == TextToken("Bla</code\n")
+    assert dom.c[0] == "Bla</code\n"
     assert dom.c[1] == CommentToken(" ")
     assert dom.c[3].name == "div"
     assert dom.c[3].p == {"class": "rating"}
@@ -122,7 +122,7 @@ def test_recovery_after_is_smaller_than_sign():
     dom = dhtmlparser3.parse(inp)
 
     assert dom.c[0].name == "code"
-    assert dom.c[0].c[0] == TextToken("5 < 10.")
+    assert dom.c[0].c[0] == "5 < 10."
     assert dom.c[2].name == "div"
 
 
