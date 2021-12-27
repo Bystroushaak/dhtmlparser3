@@ -25,3 +25,12 @@ class Tag:
     @property
     def c(self):
         return self.content
+
+    def __repr__(self):
+        parameters = (
+            f"{repr(self.name)}",
+            f"parameters={repr(self.parameters)}",
+            f"nonpair={self.is_non_pair}",
+        )
+
+        return f"{self.__class__.__name__}({', '.join(parameters)})"
