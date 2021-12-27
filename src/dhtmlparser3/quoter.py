@@ -4,7 +4,6 @@ notation.
 """
 
 
-# Functions & objects =========================================================
 def unescape(inp, quote='"'):
     """
     Unescape `quote` in string `inp`.
