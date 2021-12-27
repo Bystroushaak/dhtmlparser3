@@ -4,6 +4,8 @@ import dhtmlparser3
 from dhtmlparser3 import first
 from dhtmlparser3.tokenizer import Tokenizer
 
+from dhtmlparser3.tags.tag import Tag
+
 from dhtmlparser3.tokens import TextToken
 from dhtmlparser3.tokens import TagToken
 from dhtmlparser3.tokens import ParameterToken
@@ -94,16 +96,22 @@ def test_recovery_after_invalid_tag():
     assert dom.content[4].is_non_pair
 
 
-def _test_recovery_after_unclosed_tag():
-    inp = """<code>Já vím... je to příliž krátké a chybí diakritika - je to můj první článek kterej jsem kdy o Linux psal.</code
+def test_recovery_after_unclosed_tag():
+    inp = """<code>Bla</code
 <!-- -->
 
     <div class="rating">here is the rating</div>
     """
 
-    dom = dhtmlparser3.parseString(inp)
+    dom = dhtmlparser3.parse(inp)
 
-    assert dom.find("div", {"class": "rating"})
+    assert len(dom.c) == 5
+
+    assert dom.name == "code"
+    assert dom.c[0] == TextToken("Bla</code\n")
+    assert dom.c[1] == CommentToken(" ")
+    assert dom.c[3].name == "div"
+    assert dom.c[3].p == {"class": "rating"}
 
 
 def _test_recovery_after_is_smaller_than_sign():

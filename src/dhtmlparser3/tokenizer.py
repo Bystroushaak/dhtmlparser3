@@ -57,7 +57,8 @@ class Tokenizer:
             try:
                 return self._consume_tag()
             except IOError:
-                return TextToken(self.string[pointer:])
+                self.buffer = ""
+                return TextToken(self.string[pointer:self.pointer])
         elif self.char == "&":
             return self._consume_entity()
         else:
@@ -86,6 +87,9 @@ class Tokenizer:
             if self.char == ">":
                 self.advance()  # consume >
                 return tag
+
+            elif self.char == "<":
+                raise IOError("New tag start.")
 
             parameter_name = self._consume_parameter_name()
             self._consume_whitespaces()
@@ -123,7 +127,7 @@ class Tokenizer:
     def _consume_tag_name(self):
         self.buffer = self.char
         while not self.is_at_end():
-            if self.peek_is(">") or self.peek_is(" "):
+            if self.peek() in "> \n\t<":
                 self.advance()  # move to the > or " "
                 return self.return_reset_buffer()
 

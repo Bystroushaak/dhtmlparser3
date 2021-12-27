@@ -135,7 +135,8 @@ def test_tag_fail_recovery():
     tokenizer = Tokenizer("<tag key='value' <tag2>")
 
     assert tokenizer.tokenize() == [
-        TagToken("tag", parameters=[ParameterToken("key", "value"), ParameterToken("<tag2")])
+        TextToken("<tag key='value' "),
+        TagToken("tag2")
     ]
 
 
@@ -299,4 +300,24 @@ def test_recovery_from_invalid_quote():
     assert tokenizer.tokenize() == [
         TagToken("invalid", parameters=[ParameterToken("tag", "something")]),
         TextToken("notice"),
+    ]
+
+
+def test_recovery_from_unclosed_tag():
+    tokenizer = Tokenizer("""<code>Bla</code <tag>""")
+
+    assert tokenizer.tokenize() == [
+        TagToken("code"),
+        TextToken("Bla</code "),
+        TagToken("tag"),
+    ]
+
+
+def test_recovery_from_another_unclosed_tag():
+    tokenizer = Tokenizer("""<code>Bla</code\n<!-- -->""")
+
+    assert tokenizer.tokenize() == [
+        TagToken("code"),
+        TextToken("Bla</code\n"),
+        CommentToken(" "),
     ]
