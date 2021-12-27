@@ -147,20 +147,20 @@ def test_double_link():
     assert dom.c[0].parent == dom
 
 
-# def _test_remove_tags():
-#     dom = dhtmlparser3.parseString("a<b>xax<i>xe</i>xi</b>d")
-#     assert dhtmlparser3.removeTags(dom) == "axaxxexid"
-#
-#     dom = dhtmlparser3.parseString("<b></b>")
-#     assert not dhtmlparser3.removeTags(dom)
-#
-#     dom = dhtmlparser3.parseString("<b><i></b>")
-#     assert not dhtmlparser3.removeTags(dom)
-#
-#     dom = dhtmlparser3.parseString("<b><!-- asd --><i></b>")
-#     assert not dhtmlparser3.removeTags(dom)
-#
-#
+def test_remove_tags():
+    dom = dhtmlparser3.parse("a<b>xax<i>xe</i>xi</b>d")
+    assert dom.remove_tags() == "axaxxexid"
+
+    dom = dhtmlparser3.parse("<b></b>")
+    assert not dom.remove_tags()
+
+    dom = dhtmlparser3.parse("<b><i></b>")
+    assert not dom.remove_tags()
+
+    dom = dhtmlparser3.parse("<b><!-- asd --><i></b>")
+    assert not dom.remove_tags()
+
+
 # def _test_remove_tags_str_input():
 #     inp = "a<b>xax<i>xe</i>xi</b>d"
 #

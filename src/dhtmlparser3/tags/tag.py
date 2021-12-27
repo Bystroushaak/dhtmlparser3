@@ -33,6 +33,16 @@ class Tag:
                 item.parent = self
                 item.double_link()
 
+    def remove_tags(self):
+        output = ""
+        for item in self.content:
+            if isinstance(item, Tag):
+                output += item.remove_tags()
+            elif isinstance(item, str):
+                output += item
+
+        return output
+
     def __repr__(self):
         parameters = (
             f"{repr(self.name)}",
