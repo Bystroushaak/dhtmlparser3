@@ -1,24 +1,18 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Interpreter version: python 2.7
-#
-# Imports =====================================================================
 import pytest
 
 from dhtmlparser3.specialdict import SpecialDict, _lower_if_str
 
 
-# Variables ===================================================================
-sd = SpecialDict([
-    ("a", "b"),
-    ("A", "B"),
-    ("b", "c"),
-    ("X", "Y"),
-])
+sd = SpecialDict(
+    [
+        ("a", "b"),
+        ("A", "B"),
+        ("b", "c"),
+        ("X", "Y"),
+    ]
+)
 
 
-# Functions & objects =========================================================
 def test_constructor():
     assert len(sd) == 3
 
@@ -91,7 +85,9 @@ def test_equality():
 
     assert first == second
 
-    assert SpecialDict([("a", "b"), ("B", "a")]) == SpecialDict([("A", "b"), ("b", "a")])
+    assert SpecialDict([("a", "b"), ("B", "a")]) == SpecialDict(
+        [("A", "b"), ("b", "a")]
+    )
 
     assert first == first
     assert SpecialDict({2: 3}) != SpecialDict({1: 2})
