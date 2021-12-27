@@ -140,17 +140,13 @@ def test_non_pair_structure():
     assert not dom.c[2].content
 
 
-# def _test_makeDoubleLinked():
-#     dom = dhtmlparser3.parseString("""<html><tag PARAM="true"></html>""")
-#
-#     dhtmlparser3.makeDoubleLinked(dom)
-#
-#     assert dom.childs[0].parent == dom
-#     assert dom.childs[1].parent == dom
-#
-#     assert dom.childs[0].childs[0].parent == dom.childs[0]
-#
-#
+def test_double_link():
+    dom = dhtmlparser3.parse("""<html><tag PARAM="true"></html>""")
+    dom.double_link()
+
+    assert dom.c[0].parent == dom
+
+
 # def _test_remove_tags():
 #     dom = dhtmlparser3.parseString("a<b>xax<i>xe</i>xi</b>d")
 #     assert dhtmlparser3.removeTags(dom) == "axaxxexid"
@@ -180,52 +176,3 @@ def test_non_pair_structure():
 #
 #     assert dom.__str__() == inp
 
-
-#
-# def _test_index_of_end_tag():
-#     tag_list = [
-#         dhtmlparser3.HTMLElement("<h1>"),
-#         dhtmlparser3.HTMLElement("<br />"),
-#         dhtmlparser3.HTMLElement("</h1>"),
-#     ]
-#
-#     assert dhtmlparser3._indexOfEndTag(tag_list) == 2
-#     assert dhtmlparser3._indexOfEndTag(tag_list[1:]) == 0
-#     assert dhtmlparser3._indexOfEndTag(tag_list[2:]) == 0
-#
-#     tag_list = [
-#         dhtmlparser3.HTMLElement("<h1>"),
-#         dhtmlparser3.HTMLElement("</h1>"),
-#         dhtmlparser3.HTMLElement("</h1>"),
-#     ]
-#
-#     assert dhtmlparser3._indexOfEndTag(tag_list) == 1
-#
-#
-# def _test_parse_dom():
-#     tag_list = [
-#         dhtmlparser3.HTMLElement("<h1>"),
-#         dhtmlparser3.HTMLElement("<xx>"),
-#         dhtmlparser3.HTMLElement("<xx>"),
-#         dhtmlparser3.HTMLElement("</h1>"),
-#     ]
-#
-#     dom = dhtmlparser3._parseDOM(tag_list)
-#
-#     assert len(dom) == 2
-#     assert len(first(dom).childs) == 2
-#     assert first(dom).childs[0].getTagName() == "xx"
-#     assert first(dom).childs[1].getTagName() == "xx"
-#     assert first(dom).childs[0].isNonPairTag()
-#     assert first(dom).childs[1].isNonPairTag()
-#
-#     assert not dom[0].isNonPairTag()
-#     assert not dom[1].isNonPairTag()
-#
-#     assert dom[0].isOpeningTag()
-#     assert dom[1].isEndTag()
-#
-#     assert dom[0].is_end_tag == dom[1]
-#     assert dom[1].openertag == dom[0]
-#
-#     assert dom[1].isEndTagTo(dom[0])

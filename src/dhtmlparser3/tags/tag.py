@@ -17,6 +17,7 @@ class Tag:
         self.content = content if content is not None else []
 
         self.is_non_pair = is_non_pair
+        self.parent = None
 
     @property
     def p(self):
@@ -25,6 +26,12 @@ class Tag:
     @property
     def c(self):
         return self.content
+
+    def double_link(self):
+        for item in self.content:
+            if isinstance(item, Tag):
+                item.parent = self
+                item.double_link()
 
     def __repr__(self):
         parameters = (
