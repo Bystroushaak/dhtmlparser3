@@ -28,7 +28,7 @@ class Parser:
         "meta",
         "spacer",
         "frame",
-        "base"
+        "base",
     }
 
     def __init__(self, string: str, case_insensitive_parameters=True):
@@ -60,8 +60,9 @@ class Parser:
                 continue
 
             if token.is_end_tag:
-                closed_element = [x for x in reversed(element_stack)
-                                  if x.name == token.name]
+                closed_element = [
+                    x for x in reversed(element_stack) if x.name == token.name
+                ]
 
                 # random closing tag which doesn't match anything
                 if not closed_element:
@@ -75,21 +76,7 @@ class Parser:
                     top_element = element_stack[-1]
                     continue
 
-                # find which one was closed and treat all others as nonpair
-                closed_element_index = element_stack.index(closed_element) + 1
-                non_pairs = element_stack[closed_element_index:]
-                element_stack = element_stack[:closed_element_index]
-
-                # create list of (element, parent) from the non_pairs
-                shifted_non_pairs = non_pairs[:]
-                shifted_non_pairs.pop()
-                shifted_non_pairs.insert(0, element_stack[-1])
-                for npt, parent in reversed(list(zip(non_pairs, shifted_non_pairs))):
-                    self._unroll_nesting(npt, parent)
-
-                element_stack.pop()
-                top_element = element_stack[-1]
-
+                top_element = self._reshape_non_pair_tags(element_stack, closed_element)
                 continue
 
             new_top_element = token.to_tag()
@@ -102,7 +89,43 @@ class Parser:
 
         return root_elem
 
-    def _unroll_nesting(self, non_pair_tag: Tag, parent: Tag):
+    def _reshape_non_pair_tags(self, element_stack, closed_element):
+        """
+        Used for non_pair tags, which are parsed like this:
+
+        "<div><br><img><hr></div>" gets parsed to:
+
+        <div>
+            <br>
+                <img>
+                    <hr>
+
+        What this does is that it changes the structure into:
+
+        <div>
+            <br>
+            <img>
+            <hr>
+        """
+        # find which one was closed and treat all others as nonpair
+        closed_element_index = element_stack.index(closed_element) + 1
+        non_pairs = element_stack[closed_element_index:]
+        element_stack = element_stack[:closed_element_index]
+
+        # create list of (element, parent) from the non_pairs
+        shifted_non_pairs = non_pairs[:]
+        shifted_non_pairs.pop()
+        shifted_non_pairs.insert(0, element_stack[-1])
+        for npt, parent in reversed(list(zip(non_pairs, shifted_non_pairs))):
+            self._move_content_to_parent(npt, parent)
+
+        element_stack.pop()
+        return element_stack[-1]
+
+    def _move_content_to_parent(self, non_pair_tag: Tag, parent: Tag):
+        """
+        Take `.content` from `non_pair_tag` and move them to `parent` tag.
+        """
         if not non_pair_tag.content:
             return
 
@@ -113,87 +136,9 @@ class Parser:
         non_pair_tag.content.clear()
 
 
-    def _parseDOM(self, istack):
-        """
-        Recursively go through element array and create DOM.
-
-        Args:
-            istack (list): List of :class:`.HTMLElement` objects.
-
-        Returns:
-            list: DOM tree as list.
-        """
-        ostack = []
-
-        index = 0
-        while index < len(istack):
-            el = istack[index]
-
-            # check if this is pair tag
-            end_tag_index = self._index_of_end_tag(istack[index:])
-
-            if end_tag_index == 0 and self._isnt_nonpair_or_end_or_comment(el):
-                el.isNonPairTag(True)
-
-            if end_tag_index == 0:
-                if not el.isEndTag():
-                    ostack.append(el)
-            else:
-                el.childs = _parseDOM(istack[index + 1 : end_tag_index + index])
-                el.is_end_tag = istack[end_tag_index + index]  # reference to endtag
-                el.is_end_tag.openertag = el
-
-                ostack.append(el)
-                ostack.append(el.is_end_tag)
-
-                index = end_tag_index + index
-
-            index += 1
-
-        return ostack
-
-    @staticmethod
-    def _isnt_nonpair_or_end_or_comment(el: HTMLElement):
-        return not (el.isNonPairTag() or el.isEndTag() or el.isComment())
-
-    def _index_of_end_tag(self, istack):
-        """
-        Go through `istack` and search endtag. Element at first index is considered
-        as opening tag.
-
-        Args:
-            istack (list): List of :class:`.HTMLElement` objects.
-
-        Returns:
-            int: Index of end tag or 0 if not found.
-        """
-        if not istack:
-            return 0
-
-        if not istack[0].isOpeningTag():
-            return 0
-
-        cnt = 0
-        opener = istack[0]
-        for index, el in enumerate(istack[1:]):
-            if el.isOpeningTag() and el.getTagName().lower() == opener.getTagName().lower():
-                cnt += 1
-
-            elif el.isEndTagTo(opener):
-                if cnt == 0:
-                    return index + 1
-
-                cnt -= 1
-
-        return 0
-
-
-
 def parse(string: str, case_insensitive_parameters=True):
     parser = Parser(string, case_insensitive_parameters)
     return parser.parse_dom()
-
-
 
 
 class StateEnum(IntEnum):
