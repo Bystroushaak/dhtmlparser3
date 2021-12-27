@@ -76,11 +76,19 @@ class Parser:
                     continue
 
                 # find which one was closed and treat all others as nonpair
-                closed_element_index = element_stack.index(closed_element)
-                nonpairs = element_stack[closed_element_index:]
+                closed_element_index = element_stack.index(closed_element) + 1
+                non_pairs = element_stack[closed_element_index:]
                 element_stack = element_stack[:closed_element_index]
 
-                # TODO: unroll nonpairs
+                # create list of (element, parent) from the non_pairs
+                shifted_non_pairs = non_pairs[:]
+                shifted_non_pairs.pop()
+                shifted_non_pairs.insert(0, element_stack[-1])
+                for npt, parent in reversed(list(zip(non_pairs, shifted_non_pairs))):
+                    self._unroll_nesting(npt, parent)
+
+                element_stack.pop()
+                top_element = element_stack[-1]
 
                 continue
 
@@ -94,6 +102,15 @@ class Parser:
 
         return root_elem
 
+    def _unroll_nesting(self, non_pair_tag: Tag, parent: Tag):
+        if not non_pair_tag.content:
+            return
+
+        npt_index_in_parent = parent.content.index(non_pair_tag)
+        for sub_tag in reversed(non_pair_tag.content):
+            parent.content.insert(npt_index_in_parent + 1, sub_tag)
+
+        non_pair_tag.content.clear()
 
 
     def _parseDOM(self, istack):

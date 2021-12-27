@@ -126,6 +126,20 @@ def test_recovery_after_is_smaller_than_sign():
     assert dom.c[2].name == "div"
 
 
+def test_non_pair_structure():
+    dom = dhtmlparser3.parse("""<div><br><img><hr></div>""")
+
+    assert dom.name == "div"
+    assert len(dom.c) == 3
+
+    assert dom.c[0].name == "br"
+    assert not dom.c[0].content
+    assert dom.c[1].name == "img"
+    assert not dom.c[1].content
+    assert dom.c[2].name == "hr"
+    assert not dom.c[2].content
+
+
 # def _test_makeDoubleLinked():
 #     dom = dhtmlparser3.parseString("""<html><tag PARAM="true"></html>""")
 #
