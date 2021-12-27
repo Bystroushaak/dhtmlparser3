@@ -114,19 +114,16 @@ def test_recovery_after_unclosed_tag():
     assert dom.c[3].p == {"class": "rating"}
 
 
-def _test_recovery_after_is_smaller_than_sign():
+def test_recovery_after_is_smaller_than_sign():
     inp = """<code>5 < 10.</code>
     <div class="rating">here is the rating</div>
     """
 
-    dom = dhtmlparser3.parseString(inp)
+    dom = dhtmlparser3.parse(inp)
 
-    code = dom.find("code")
-
-    assert code
-    assert first(code).getContent() == "5 < 10."
-    assert dom.find("div", {"class": "rating"})
-
+    assert dom.c[0].name == "code"
+    assert dom.c[0].c[0] == TextToken("5 < 10.")
+    assert dom.c[2].name == "div"
 
 
 # def _test_makeDoubleLinked():
