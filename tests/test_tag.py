@@ -12,6 +12,60 @@ from dhtmlparser3.tokens import CommentToken
 from dhtmlparser3.tokens import EntityToken
 
 
+def test_constructor_with_content():
+    e = Tag(
+        "name",
+        {"key": "value"},
+        [
+            "hello",
+            Tag("hi", is_non_pair=True)
+        ]
+    )
+
+    assert not e.is_non_pair
+
+    assert e.content
+    assert e.parameters
+
+    assert e.to_string() == '<name key="value">hello<hi /></name>'
+    assert e.content_str() == "hello<hi />"
+    assert e.name == "name"
+
+    assert "key" in e.parameters
+    assert e.parameters["key"] == "value"
+
+    assert dict(e.parameters) == {"key": "value"}
+
+    assert len(e.content) == 2
+
+    assert e.content[0] == "hello"
+    assert e.content[1].name == "hi"
+
+
+def test_constructor_with_content_only():
+    e = Tag(
+        name="",
+        content=[
+            "hello",
+            Tag("hi"),
+        ]
+    )
+
+    assert e.content
+    assert not e.parameters
+    assert not e.is_non_pair
+
+    assert e.to_string() == "hello<hi></hi>"
+    assert e.content_str() == "hello<hi></hi>"
+    assert not e.tag_to_str()
+    assert not e.name
+
+    assert len(e.content) == 2
+
+    assert e.content[0] == "hello"
+    assert e.content[1].name == "hi"
+
+
 def test_double_link():
     dom = dhtmlparser3.parse("""<html><tag PARAM="true"></html>""")
     dom.double_link()
@@ -33,6 +87,18 @@ def test_remove_tags():
     assert not dom.remove_tags()
 
 
+def test_contains_parameters_subset():
+    dom = dhtmlparser3.parse("<div id=x class=xex></div>")
+    div = dom.find("div")[0]
+
+    assert div._contains_parameters_subset({"id": "x"})
+    assert div._contains_parameters_subset({"class": "xex"})
+    assert div._contains_parameters_subset({"id": "x", "class": "xex"})
+    assert not div._contains_parameters_subset(
+        {"asd": "bsd", "id": "x", "class": "xex"}
+    )
+
+
 def test_to_string():
     dom = dhtmlparser3.parse("""<html><tag PARAM="true" rectangular /></html>""")
 
@@ -41,6 +107,29 @@ def test_to_string():
     assert dom.c[0].p["rectangular"] == ""
 
     assert dom.c[0].to_string() == '<tag PARAM="true" rectangular />'
+
+
+def test_content_str():
+    dom = dhtmlparser3.parse("""
+<div id=first>
+    First div.
+    <div id=first.subdiv>
+        Subdiv in first div.
+    </div>
+</div>
+<div id=second>
+    Second.
+    <br />
+    <!-- comment -->
+</div>
+    """)
+
+    div = dom.find("div", {"id": "first.subdiv"})[0]
+    assert div.content_str().strip() == "Subdiv in first div."
+
+    second_div = dom.find("div", {"id": "second"})[0]
+    match = '\n    Second.\n    <br />\n    <!-- comment -->\n'
+    assert second_div.content_str() == match
 
 
 def test_depth_first_iterator():
@@ -88,12 +177,7 @@ def test_breadth_first_iterator_tags_only():
 
     items = list(dom.breadth_first_iterator(tags_only=True))
 
-    assert items == [
-        Tag("div"),
-        Tag("x"),
-        Tag("y"),
-        Tag("z", is_non_pair=True)
-    ]
+    assert items == [Tag("div"), Tag("x"), Tag("y"), Tag("z", is_non_pair=True)]
 
 
 def test_find():
@@ -146,7 +230,7 @@ def test_find_fn():
     assert div_tags[0].content_str().strip().startswith("First div.")
 
 
-def test_find_params():
+def test_find_parameters():
     dom = dhtmlparser3.parse(
         """
         <div id=first>
@@ -323,10 +407,7 @@ def test_match_parameters():
     )
 
     xe = dom.match(
-        "root",
-        {"name": "div", "p": {"id": "1"}},
-        ["div", {"id": "5"}],
-        "xe"
+        "root", {"name": "div", "p": {"id": "1"}}, ["div", {"id": "5"}], "xe"
     )
 
     assert len(xe) == 1
