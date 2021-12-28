@@ -14,21 +14,7 @@ dom = dhtmlparser3.parseString(TEXT)
 
 
 # Functions & objects =========================================================
-def test_replaceWith():
-    nonpair = first(dom.find("nonpair"))
-
-    assert nonpair
-
-    nonpair.replaceWith(
-        dhtmlparser3.HTMLElement("<another />")
-    )
-
-    assert dom.find("another")
-
-    assert dom.getContent() == "<div><another /></div>"
-
-
-def test_removeChild():
+def _test_removeChild():
     dom.removeChild(
         dom.find("another")
     )
@@ -47,11 +33,3 @@ def test_removeChild():
     assert not dom2.childs
 
 
-def test_params():
-    dom = dhtmlparser3.parseString("<xe id=1 />")
-    xe = first(dom.find("xe"))
-
-    assert xe.params["id"] == "1"
-
-    xe.params = {}
-    assert str(xe) == "<xe />"

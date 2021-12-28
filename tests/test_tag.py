@@ -66,25 +66,14 @@ def test_constructor_with_content_only():
     assert e.content[1].name == "hi"
 
 
-def test_double_link():
-    dom = dhtmlparser3.parse("""<html><tag PARAM="true"></html>""")
-    dom.double_link()
+def test_parameters():
+    dom = dhtmlparser3.parse("<xe id=1 />")
+    xe = dom.find("xe")[0]
 
-    assert dom.c[0].parent == dom
+    assert xe.parameters["id"] == "1"
+    xe.parameters = {}
 
-
-def test_remove_tags():
-    dom = dhtmlparser3.parse("a<b>xax<i>xe</i>xi</b>d")
-    assert dom.remove_tags() == "axaxxexid"
-
-    dom = dhtmlparser3.parse("<b></b>")
-    assert not dom.remove_tags()
-
-    dom = dhtmlparser3.parse("<b><i></b>")
-    assert not dom.remove_tags()
-
-    dom = dhtmlparser3.parse("<b><!-- asd --><i></b>")
-    assert not dom.remove_tags()
+    assert xe.to_string() == "<xe />"
 
 
 def test_contains_parameters_subset():
@@ -444,3 +433,38 @@ def test_match_parameters_relative_path():
 
     assert len(xe) == 1
     assert xe[0].parameters["id"] == "wanted xe"
+
+
+def test_double_link():
+    dom = dhtmlparser3.parse("""<html><tag PARAM="true"></html>""")
+    dom.double_link()
+
+    assert dom.c[0].parent == dom
+
+
+def test_remove_tags():
+    dom = dhtmlparser3.parse("a<b>xax<i>xe</i>xi</b>d")
+    assert dom.remove_tags() == "axaxxexid"
+
+    dom = dhtmlparser3.parse("<b></b>")
+    assert not dom.remove_tags()
+
+    dom = dhtmlparser3.parse("<b><i></b>")
+    assert not dom.remove_tags()
+
+    dom = dhtmlparser3.parse("<b><!-- asd --><i></b>")
+    assert not dom.remove_tags()
+
+
+def test_replace_with():
+    dom = dhtmlparser3.parse("<div><nonpair /></div>")
+    nonpair = dom.find("nonpair")[0]
+
+    assert nonpair
+
+    nonpair.replace_with(
+        Tag("another", is_non_pair=True)
+    )
+
+    assert dom.find("another")
+    assert dom.to_string() == "<div><another /></div>"

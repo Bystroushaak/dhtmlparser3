@@ -96,6 +96,16 @@ class Tag:
 
         return output
 
+    def replace_with(self, item):
+        if not isinstance(item, Tag):
+            raise TypeError(f"Can't replace `item` with `{item.__class__}`!")
+
+        self.name = item.name
+        self.parameters = item.parameters.copy()
+        self.content = item.content[:]
+        self.is_non_pair = item.is_non_pair
+        self._wfind_only_on_content = item._wfind_only_on_content
+
     def wfind(self, name, p=None, fn=None, case_sensitive=False):
         container = Tag(name="")
         container._wfind_only_on_content = True
