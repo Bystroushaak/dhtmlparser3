@@ -110,19 +110,25 @@ def test_tag_with_whitespaces_after_tag_name():
 def test_tag_with_nonpair_parameter():
     tokenizer = Tokenizer("<tag rectangle>")
 
-    assert tokenizer.tokenize() == [TagToken("tag", parameters=[ParameterToken("rectangle", "")])]
+    assert tokenizer.tokenize() == [
+        TagToken("tag", parameters=[ParameterToken("rectangle", "")])
+    ]
 
 
 def test_tag_with_single_unquoted_parameter():
     tokenizer = Tokenizer("<tag key=value>")
 
-    assert tokenizer.tokenize() == [TagToken("tag", parameters=[ParameterToken("key", "value")])]
+    assert tokenizer.tokenize() == [
+        TagToken("tag", parameters=[ParameterToken("key", "value")])
+    ]
 
 
 def test_tag_with_single_unquoted_parameter_spaces():
     tokenizer = Tokenizer("<  tag   key   =   value  >")
 
-    assert tokenizer.tokenize() == [TagToken("tag", parameters=[ParameterToken("key", "value")])]
+    assert tokenizer.tokenize() == [
+        TagToken("tag", parameters=[ParameterToken("key", "value")])
+    ]
 
 
 def test_tag_with_single_quoted_parameter():
@@ -147,22 +153,23 @@ def test_two_single_quoted_parameters():
 def test_tag_fail_recovery():
     tokenizer = Tokenizer("<tag key='value' <tag2>")
 
-    assert tokenizer.tokenize() == [
-        TextToken("<tag key='value' "),
-        TagToken("tag2")
-    ]
+    assert tokenizer.tokenize() == [TextToken("<tag key='value' "), TagToken("tag2")]
 
 
 def test_tag_with_double_quoted_parameter():
     tokenizer = Tokenizer('<tag key="value">')
 
-    assert tokenizer.tokenize() == [TagToken("tag", parameters=[ParameterToken("key", "value")])]
+    assert tokenizer.tokenize() == [
+        TagToken("tag", parameters=[ParameterToken("key", "value")])
+    ]
 
 
 def test_tag_with_double_quoted_parameter_and_escape_seq():
     tokenizer = Tokenizer('<tag key="a \\" a">')
 
-    assert tokenizer.tokenize() == [TagToken("tag", parameters=[ParameterToken("key", 'a " a')])]
+    assert tokenizer.tokenize() == [
+        TagToken("tag", parameters=[ParameterToken("key", 'a " a')])
+    ]
 
 
 def test_tag_with_double_quoted_parameter_and_backslash():
@@ -303,8 +310,11 @@ def test_multiline_attribute():
     assert len(tokens) == 1
     assert tokens[0].name == "ubertag"
     assert tokens[0].parameters[0].key == "attribute"
-    assert tokens[0].parameters[0].value == """long attribute
+    assert (
+        tokens[0].parameters[0].value
+        == """long attribute
                                continues here"""
+    )
 
 
 def test_recovery_from_invalid_quote():
