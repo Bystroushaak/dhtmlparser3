@@ -15,47 +15,10 @@ from dhtmlparser3 import first
 
 
 
-def test_find_params():
-    dom = dhtmlparser3.parseString(
-        """
-        <div id=first>
-            First div.
-            <div id=first.subdiv>
-                Subdiv in first div.
-            </div>
-        </div>
-        <div id=second>
-            Second.
-        </div>
-        """
-    )
-
-    div_tags = dom.find("", {"id": "first"})
-
-    assert div_tags
-    assert len(div_tags) == 1
-
-    assert first(div_tags).params.get("id") == "first"
-    assert first(div_tags).getContent().strip().startswith("First div.")
 
 
-def test_findB():
-    dom = dhtmlparser3.parseString(
-        """
-        <div id=first>
-            First div.
-            <div id=first.subdiv>
-                Subdiv in first div.
-            </div>
-        </div>
-        <div id=second>
-            Second.
-        </div>
-        """
-    )
 
-    assert dom.find("div")[1].getContent().strip() == "Subdiv in first div."
-    assert dom.findB("div")[1].getContent().strip() == "Second."
+
 
 
 def test_wfind():
