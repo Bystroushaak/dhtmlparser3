@@ -24,6 +24,8 @@ class Tag:
         self.is_non_pair = is_non_pair
         self.parent = None
 
+        self._wfind_only_on_content = False
+
     @property
     def p(self):
         return self.parameters
@@ -92,6 +94,24 @@ class Tag:
                 output += item.to_string()
 
         return output
+
+    def wfind(self, name, p=None, fn=None, case_sensitive=False):
+        container = Tag(name="")
+        container._wfind_only_on_content = True
+
+        # in the first iteration, just do regular find
+        if not self._wfind_only_on_content:
+            container.content = self.find(name, p, fn, case_sensitive)
+            return container
+
+        # in the subsequent iterations, perform the matching on the sub-tags
+        sub_tags = (item.content for item in self.content)
+        for item in sum(sub_tags, []):  # flattern the list
+            if isinstance(item, Tag):
+                if item._is_almost_equal(name, p, fn, case_sensitive):
+                    container.content.append(item)
+
+        return container
 
     def find(self, name, p=None, fn=None, case_sensitive=False):
         return list(self.find_depth_first_iter(name, p, fn, case_sensitive))

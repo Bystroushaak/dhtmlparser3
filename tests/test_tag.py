@@ -1,7 +1,6 @@
 import pytest
 
 import dhtmlparser3
-from dhtmlparser3 import first
 from dhtmlparser3.tokenizer import Tokenizer
 
 from dhtmlparser3.tags.tag import Tag
@@ -113,8 +112,8 @@ def test_find():
     assert div_xex
     assert not div_xerexes
 
-    div_xe = first(div_xe)
-    div_xex = first(div_xex)
+    div_xe = div_xe[0]
+    div_xex = div_xex[0]
 
     assert div_xe.to_string() == '<div ID="xa" a="b">obsah xa divu</div>'
     assert div_xex.to_string() == '<div id="xex" a="b">obsah xex divu</div>'
@@ -143,8 +142,8 @@ def test_find_fn():
     assert div_tags
     assert len(div_tags) == 1
 
-    assert first(div_tags).p.get("id") == "first"
-    assert first(div_tags).content_str().strip().startswith("First div.")
+    assert div_tags[0].p.get("id") == "first"
+    assert div_tags[0].content_str().strip().startswith("First div.")
 
 
 def test_find_params():
@@ -167,8 +166,8 @@ def test_find_params():
     assert div_tags
     assert len(div_tags) == 1
 
-    assert first(div_tags).p.get("id") == "first"
-    assert first(div_tags).content_str().strip().startswith("First div.")
+    assert div_tags[0].p.get("id") == "first"
+    assert div_tags[0].content_str().strip().startswith("First div.")
 
 
 def test_findb():
@@ -188,3 +187,85 @@ def test_findb():
 
     assert dom.find("div")[1].content_str().strip() == "Subdiv in first div."
     assert dom.findb("div")[1].content_str().strip() == "Second."
+
+
+def test_wfind():
+    dom = dhtmlparser3.parse(
+        """
+        <div id=first>
+            First div.
+            <div id=first.subdiv>
+                Subdiv in first div.
+            </div>
+        </div>
+        <div id=second>
+            Second.
+        </div>
+        """
+    )
+
+    div = dom.wfind("div").wfind("div")
+
+    assert div.content
+    assert div.content[0].p["id"] == "first.subdiv"
+
+
+def test_wfind_complicated():
+    dom = dhtmlparser3.parse(
+        """
+        <root>
+            <some>
+                <something>
+                    <xe id="wanted xe" />
+                </something>
+                <something>
+                    asd
+                </something>
+                <xe id="another xe" />
+            </some>
+            <some>
+                else
+                <xe id="yet another xe" />
+            </some>
+        </root>
+        """
+    )
+
+    xe = dom.wfind("root").wfind("some").wfind("something").find("xe")
+
+    assert len(xe) == 1
+    assert xe[0].parameters["id"] == "wanted xe"
+
+    unicorn = dom.wfind("root").wfind("pink").wfind("unicorn")
+
+    assert not unicorn.content
+
+
+def test_wfind_multiple_matches():
+    dom = dhtmlparser3.parse(
+        """
+        <root>
+            <some>
+                <something>
+                    <xe id="wanted xe" />
+                </something>
+                <something>
+                    <xe id="another wanted xe" />
+                </something>
+                <xe id="another xe" />
+            </some>
+            <some>
+                <something>
+                    <xe id="last wanted xe" />
+                </something>
+            </some>
+        </root>
+        """
+    )
+
+    xe = dom.wfind("root").wfind("some").wfind("something").wfind("xe")
+
+    assert len(xe.content) == 3
+    assert xe.content[0].parameters["id"] == "wanted xe"
+    assert xe.content[1].parameters["id"] == "another wanted xe"
+    assert xe.content[2].parameters["id"] == "last wanted xe"
