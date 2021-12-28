@@ -12,28 +12,7 @@ from dhtmlparser3 import first
 
 
 
-def test_find_fn():
-    dom = dhtmlparser3.parseString(
-        """
-        <div id=first>
-            First div.
-            <div id=first.subdiv>
-                Subdiv in first div.
-            </div>
-        </div>
-        <div id=second>
-            Second.
-        </div>
-        """
-    )
 
-    div_tags = dom.find("div", fn=lambda x: x.params.get("id") == "first")
-
-    assert div_tags
-    assert len(div_tags) == 1
-
-    assert first(div_tags).params.get("id") == "first"
-    assert first(div_tags).getContent().strip().startswith("First div.")
 
 
 def test_find_params():

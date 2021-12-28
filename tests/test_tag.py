@@ -121,3 +121,27 @@ def test_find():
 
     assert div_xe.name == "div"
     assert div_xex.name == "div"
+
+
+def test_find_fn():
+    dom = dhtmlparser3.parse(
+        """
+        <div id=first>
+            First div.
+            <div id=first.subdiv>
+                Subdiv in first div.
+            </div>
+        </div>
+        <div id=second>
+            Second.
+        </div>
+        """
+    )
+
+    div_tags = dom.find("div", fn=lambda x: x.p.get("id") == "first")
+
+    assert div_tags
+    assert len(div_tags) == 1
+
+    assert first(div_tags).p.get("id") == "first"
+    assert first(div_tags).content_str().strip().startswith("First div.")
