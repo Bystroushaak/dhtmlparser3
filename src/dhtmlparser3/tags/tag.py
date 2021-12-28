@@ -113,6 +113,20 @@ class Tag:
 
         return container
 
+    def match(self, *args):
+        item = self
+        args = list(args)
+        while args:
+            arg = args.pop(0)
+            if isinstance(arg, dict):
+                item = item.wfind(**arg)
+            elif isinstance(arg, list) or isinstance(arg, tuple):
+                item = item.wfind(*arg)
+            else:
+                item = item.wfind(arg)
+
+        return item.content
+
     def find(self, name, p=None, fn=None, case_sensitive=False):
         return list(self.find_depth_first_iter(name, p, fn, case_sensitive))
 

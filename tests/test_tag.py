@@ -269,3 +269,97 @@ def test_wfind_multiple_matches():
     assert xe.content[0].parameters["id"] == "wanted xe"
     assert xe.content[1].parameters["id"] == "another wanted xe"
     assert xe.content[2].parameters["id"] == "last wanted xe"
+
+
+def test_match():
+    dom = dhtmlparser3.parse(
+        """
+        <root>
+            <some>
+                <something>
+                    <xe id="wanted xe" />
+                </something>
+                <something>
+                    <xe id="another wanted xe" />
+                </something>
+                <xe id="another xe" />
+            </some>
+            <some>
+                <something>
+                    <xe id="last wanted xe" />
+                </something>
+            </some>
+        </root>
+        """
+    )
+
+    xe = dom.match("root", "some", "something", "xe")
+    assert len(xe) == 3
+    assert xe[0].parameters["id"] == "wanted xe"
+    assert xe[1].parameters["id"] == "another wanted xe"
+    assert xe[2].parameters["id"] == "last wanted xe"
+
+
+def test_match_parameters():
+    dom = dhtmlparser3.parse(
+        """
+        <root>
+            <div id="1">
+                <div id="5">
+                    <xe id="wanted xe" />
+                </div>
+                <div id="10">
+                    <xe id="another wanted xe" />
+                </div>
+                <xe id="another xe" />
+            </div>
+            <div id="2">
+                <div id="20">
+                    <xe id="last wanted xe" />
+                </div>
+            </div>
+        </root>
+        """
+    )
+
+    xe = dom.match(
+        "root",
+        {"name": "div", "p": {"id": "1"}},
+        ["div", {"id": "5"}],
+        "xe"
+    )
+
+    assert len(xe) == 1
+    assert xe[0].parameters["id"] == "wanted xe"
+
+
+def test_match_parameters_relative_path():
+    dom = dhtmlparser3.parse(
+        """
+        <root>
+            <div id="1">
+                <div id="5">
+                    <xe id="wanted xe" />
+                </div>
+                <div id="10">
+                    <xe id="another wanted xe" />
+                </div>
+                <xe id="another xe" />
+            </div>
+            <div id="2">
+                <div id="20">
+                    <xe id="last wanted xe" />
+                </div>
+            </div>
+        </root>
+        """
+    )
+
+    xe = dom.match(
+        {"name": "div", "p": {"id": "1"}},
+        ["div", {"id": "5"}],
+        "xe",
+    )
+
+    assert len(xe) == 1
+    assert xe[0].parameters["id"] == "wanted xe"
