@@ -34,6 +34,16 @@ def test_remove_tags():
     assert not dom.remove_tags()
 
 
+def test_to_string():
+    dom = dhtmlparser3.parse("""<html><tag PARAM="true" rectangular /></html>""")
+
+    assert dom.c[0].name == "tag"
+    assert dom.c[0].p["param"] == "true"
+    assert dom.c[0].p["rectangular"] == ""
+
+    assert dom.c[0].to_string() == '<tag PARAM="true" rectangular />'
+
+
 def test_depth_first_iterator():
     dom = dhtmlparser3.parse("<div><x>a</x><y>b</y></div>")
 

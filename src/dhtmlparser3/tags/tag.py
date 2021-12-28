@@ -57,7 +57,7 @@ class Tag:
             else:
                 output += item.to_string()
 
-        if self.name:
+        if self.name and not self.is_non_pair:
             return f"{output}</{self.name}>"
 
         return output
@@ -71,6 +71,19 @@ class Tag:
 
         return f"<{self.name}{self._parameters_to_str()}>"
 
+    def _parameters_to_str(self):
+        if not self.parameters:
+            return ""
+
+        parameters = []
+        for key, value in self.parameters.items():
+            if value:
+                parameters.append(f'{key}="{escape(value)}"')
+            else:
+                parameters.append(f"{key}")
+
+        return " " + " ".join(parameters)
+
     def content_str(self):
         output = ""
         for item in self.content:
@@ -80,19 +93,6 @@ class Tag:
                 output += item.to_string()
 
         return output
-
-    def _parameters_to_str(self):
-        if not self.parameters:
-            return ""
-
-        parameters = []
-        for key, value in self.parameters.items():
-            if value:
-                parameters.append(f"{key}={escape(value)}")
-            else:
-                parameters.append(f"{key}")
-
-        return " " + " ".join(parameters)
 
     def depth_first_iterator(
         self, tags_only=False
