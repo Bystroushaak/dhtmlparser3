@@ -32,3 +32,82 @@ def test_remove_tags():
 
     dom = dhtmlparser3.parse("<b><!-- asd --><i></b>")
     assert not dom.remove_tags()
+
+
+def test_depth_first_iterator():
+    dom = dhtmlparser3.parse("<div><x>a</x><y>b</y></div>")
+
+    items = list(dom.depth_first_iterator())
+
+    assert items == [
+        Tag("div"),
+        Tag("x"),
+        "a",
+        Tag("y"),
+        "b",
+    ]
+
+
+def test_depth_first_iterator_tags_only():
+    dom = dhtmlparser3.parse("<div><x>a</x><y>b</y></div>")
+
+    items = list(dom.depth_first_iterator(tags_only=True))
+
+    assert items == [
+        Tag("div"),
+        Tag("x"),
+        Tag("y"),
+    ]
+
+
+def test_breadth_first_iterator():
+    dom = dhtmlparser3.parse("<div><x>a</x><y>b</y></div>")
+
+    items = list(dom.breadth_first_iterator())
+
+    assert items == [
+        Tag("div"),
+        Tag("x"),
+        Tag("y"),
+        "a",
+        "b",
+    ]
+
+
+def test_breadth_first_iterator_tags_only():
+    dom = dhtmlparser3.parse("<div><x><z /></x><y>b</y></div>")
+
+    items = list(dom.breadth_first_iterator(tags_only=True))
+
+    assert items == [
+        Tag("div"),
+        Tag("x"),
+        Tag("y"),
+        Tag("z", is_non_pair=True)
+    ]
+
+
+def _test_find():
+    dom = dhtmlparser3.parseString(
+        """
+        "<div ID='xa' a='b'>obsah xa divu</div> <!-- ID, not id :) -->
+         <div id='xex' a='b'>obsah xex divu</div>
+        """
+    )
+
+    div_xe = dom.find("div", {"id": "xa"})  # notice the small `id`
+    div_xex = dom.find("div", {"id": "xex"})
+    div_xerexes = dom.find("div", {"id": "xerexex"})
+
+    assert div_xe
+    assert div_xex
+    assert not div_xerexes
+
+    div_xe = first(div_xe)
+    div_xex = first(div_xex)
+
+    assert div_xe.toString() == '<div ID="xa" a="b">obsah xa divu</div>'
+    assert div_xex.toString() == '<div id="xex" a="b">obsah xex divu</div>'
+
+    assert div_xe.getTagName() == "div"
+    assert div_xex.getTagName() == "div"

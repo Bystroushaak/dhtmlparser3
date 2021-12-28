@@ -1,5 +1,10 @@
+from typing import Union
+from typing import Iterator
+
+import dhtmlparser3
 from dhtmlparser3.quoter import escape
 from dhtmlparser3.specialdict import SpecialDict
+from dhtmlparser3.tags.comment import Comment
 
 
 class Tag:
@@ -66,6 +71,16 @@ class Tag:
 
         return f"<{self.name}{self._parameters_to_str()}>"
 
+    def content_str(self):
+        output = ""
+        for item in self.content:
+            if isinstance(item, str):
+                output += item
+            else:
+                output += item.to_string()
+
+        return output
+
     def _parameters_to_str(self):
         if not self.parameters:
             return ""
@@ -78,6 +93,34 @@ class Tag:
                 parameters.append(f"{key}")
 
         return " " + " ".join(parameters)
+
+    def depth_first_iterator(
+        self, tags_only=False
+    ) -> Iterator[Union["Tag", str, Comment]]:
+        yield self
+
+        for item in self.content:
+            if isinstance(item, Tag):
+                yield from item.depth_first_iterator(tags_only)
+            elif not tags_only:
+                yield item
+
+    def breadth_first_iterator(
+        self, tags_only=False, _first_call=True
+    ) -> Iterator[Union["Tag", str, Comment]]:
+        if _first_call:
+            yield self
+
+        if tags_only:
+            for item in self.content:
+                if isinstance(item, Tag):
+                    yield item
+        else:
+            yield from self.content
+
+        for item in self.content:
+            if isinstance(item, Tag):
+                yield from item.breadth_first_iterator(tags_only, False)
 
     def __repr__(self):
         parameters = (

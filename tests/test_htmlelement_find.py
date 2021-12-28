@@ -9,30 +9,7 @@ from dhtmlparser3 import first
 
 
 # Functions & objects =========================================================
-def test_find():
-    dom = dhtmlparser3.parseString(
-        """
-        "<div ID='xa' a='b'>obsah xa divu</div> <!-- ID, not id :) -->
-         <div id='xex' a='b'>obsah xex divu</div>
-        """
-    )
 
-    div_xe = dom.find("div", {"id": "xa"})  # notice the small `id`
-    div_xex = dom.find("div", {"id": "xex"})
-    div_xerexes = dom.find("div", {"id": "xerexex"})
-
-    assert div_xe
-    assert div_xex
-    assert not div_xerexes
-
-    div_xe = first(div_xe)
-    div_xex = first(div_xex)
-
-    assert div_xe.toString() == '<div ID="xa" a="b">obsah xa divu</div>'
-    assert div_xex.toString() == '<div id="xex" a="b">obsah xex divu</div>'
-
-    assert div_xe.getTagName() == "div"
-    assert div_xex.getTagName() == "div"
 
 
 def test_find_fn():
