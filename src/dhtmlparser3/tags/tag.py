@@ -1,3 +1,4 @@
+from typing import List
 from typing import Union
 from typing import Iterator
 
@@ -127,18 +128,22 @@ class Tag:
 
         return item.content
 
-    def find(self, name, p=None, fn=None, case_sensitive=False):
+    def find(self, name, p=None, fn=None, case_sensitive=False) -> List["Tag"]:
         return list(self.find_depth_first_iter(name, p, fn, case_sensitive))
 
-    def findb(self, name, p=None, fn=None, case_sensitive=False):
+    def findb(self, name, p=None, fn=None, case_sensitive=False) -> List["Tag"]:
         return list(self.find_breadth_first_iter(name, p, fn, case_sensitive))
 
-    def find_depth_first_iter(self, name, p=None, fn=None, case_sensitive=False):
+    def find_depth_first_iter(
+        self, name, p=None, fn=None, case_sensitive=False
+    ) -> Iterator["Tag"]:
         for item in self.depth_first_iterator(tags_only=True):
             if item._is_almost_equal(name, p, fn, case_sensitive):
                 yield item
 
-    def find_breadth_first_iter(self, name, p=None, fn=None, case_sensitive=False):
+    def find_breadth_first_iter(
+        self, name, p=None, fn=None, case_sensitive=False
+    ) -> Iterator["Tag"]:
         for item in self.breadth_first_iterator(tags_only=True):
             if item._is_almost_equal(name, p, fn, case_sensitive):
                 yield item
@@ -171,7 +176,9 @@ class Tag:
             if isinstance(item, Tag):
                 yield from item.breadth_first_iterator(tags_only, False)
 
-    def _is_almost_equal(self, other_name, p=None, fn=None, case_sensitive=False):
+    def _is_almost_equal(
+        self, other_name, p=None, fn=None, case_sensitive=False
+    ) -> bool:
         tag_name = self.name
         if not case_sensitive:
             tag_name = tag_name.lower()
