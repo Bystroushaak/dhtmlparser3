@@ -37,6 +37,14 @@ def test_parse_simple_string_cip():
          assert dom.content[0].p["param"]
 
 
+def test_parse_single_quoted_params():
+    dom = dhtmlparser3.parse("<div ID='xa' a='b'>")
+
+    assert dom.name == "div"
+    assert dom.p["ID"] == "xa"
+    assert dom.p["a"] == "b"
+
+
 def test_multiline_attribute():
     inp = """<sometag />
 <ubertag attribute="long attribute

@@ -172,7 +172,7 @@ class Tokenizer:
         quote_type = self.char
         self.advance()
 
-        if self.peek() == quote_type:
+        if self.char == quote_type:
             self.advance()
             return ""
 

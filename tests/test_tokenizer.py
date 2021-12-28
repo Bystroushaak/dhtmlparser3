@@ -128,7 +128,20 @@ def test_tag_with_single_unquoted_parameter_spaces():
 def test_tag_with_single_quoted_parameter():
     tokenizer = Tokenizer("<tag key='value'>")
 
-    assert tokenizer.tokenize() == [TagToken("tag", parameters=[ParameterToken("key", "value")])]
+    assert tokenizer.tokenize() == [
+        TagToken("tag", parameters=[ParameterToken("key", "value")])
+    ]
+
+
+def test_two_single_quoted_parameters():
+    tokenizer = Tokenizer("<div ID='xa' a='b'>")
+
+    assert tokenizer.tokenize() == [
+        TagToken("div", parameters=[
+            ParameterToken("ID", "xa"),
+            ParameterToken("a", "b")
+        ])
+    ]
 
 
 def test_tag_fail_recovery():
