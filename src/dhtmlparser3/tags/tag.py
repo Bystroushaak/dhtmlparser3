@@ -51,6 +51,27 @@ class Tag:
 
         return output
 
+    def remove_item(self, stuff):
+        if isinstance(stuff, str):
+            self.content.remove(stuff)
+        elif isinstance(stuff, Comment):
+            self.content = [
+                item
+                for item in self.content
+                if not (isinstance(item, Comment) and item.content == stuff.content)
+            ]
+        elif isinstance(stuff, Tag):
+            self.content = [
+                item
+                for item in self.content
+                if not (
+                    isinstance(item, Tag)
+                    and stuff._is_almost_equal(stuff.name, stuff.parameters)
+                )
+            ]
+        else:
+            raise ValueError(f"Can't remove `{repr(stuff)}`")
+
     def to_string(self):
         output = self.tag_to_str()
         for item in self.content:

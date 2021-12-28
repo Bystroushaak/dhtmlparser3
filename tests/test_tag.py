@@ -462,9 +462,14 @@ def test_replace_with():
 
     assert nonpair
 
-    nonpair.replace_with(
-        Tag("another", is_non_pair=True)
-    )
+    nonpair.replace_with(Tag("another", is_non_pair=True))
 
     assert dom.find("another")
     assert dom.to_string() == "<div><another /></div>"
+
+
+def test_remove_item():
+    dom = dhtmlparser3.parse("<div><nonpair /></div>")
+    dom.remove_item(dom.find("nonpair")[0])
+
+    assert dom.to_string() == "<div></div>"
