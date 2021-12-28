@@ -1,7 +1,6 @@
 from typing import Union
 from typing import Iterator
 
-import dhtmlparser3
 from dhtmlparser3.quoter import escape
 from dhtmlparser3.specialdict import SpecialDict
 from dhtmlparser3.tags.comment import Comment
@@ -121,6 +120,59 @@ class Tag:
         for item in self.content:
             if isinstance(item, Tag):
                 yield from item.breadth_first_iterator(tags_only, False)
+
+    def find(self, name, p=None, fn=None, case_sensitive=False):
+        return list(self.find_depth_first_iter(name, p, fn, case_sensitive))
+
+    def findb(self, name, p=None, fn=None, case_sensitive=False):
+        return list(self.find_breadth_first_iter(name, p, fn, case_sensitive))
+
+    def find_depth_first_iter(self, name, p=None, fn=None, case_sensitive=False):
+        for item in self.depth_first_iterator(tags_only=True):
+            if item._is_almost_equal(name, p, fn, case_sensitive):
+                yield item
+
+    def find_breadth_first_iter(self, name, p=None, fn=None, case_sensitive=False):
+        for item in self.breadth_first_iterator(tags_only=True):
+            if item._is_almost_equal(name, p, fn, case_sensitive):
+                yield item
+
+    def _is_almost_equal(self, other_name, p=None, fn=None, case_sensitive=False):
+        tag_name = self.name
+        if not case_sensitive:
+            tag_name = tag_name.lower()
+            other_name = other_name.lower()
+
+        if other_name and tag_name != other_name:
+            return False
+
+        if p is not None and not self._contains_parameters_subset(p):
+            return False
+
+        if fn is not None and not fn(self):
+            return False
+
+        return True
+
+    def _contains_parameters_subset(self, parameter_subset):
+        """
+        Test whether this Tag contains at least all `parameter_subset`, key
+        and values, or more.
+
+        Args:
+            params (dict/SpecialDict): Subset of parameters.
+
+        Returns:
+            bool: True if it is contained.
+        """
+        for key, val in parameter_subset.items():
+            if key not in self.parameters:
+                return False
+
+            if val != self.parameters[key]:
+                return False
+
+        return True
 
     def __repr__(self):
         parameters = (

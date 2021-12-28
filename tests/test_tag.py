@@ -97,8 +97,8 @@ def test_breadth_first_iterator_tags_only():
     ]
 
 
-def _test_find():
-    dom = dhtmlparser3.parseString(
+def test_find():
+    dom = dhtmlparser3.parse(
         """
         "<div ID='xa' a='b'>obsah xa divu</div> <!-- ID, not id :) -->
          <div id='xex' a='b'>obsah xex divu</div>
@@ -116,8 +116,8 @@ def _test_find():
     div_xe = first(div_xe)
     div_xex = first(div_xex)
 
-    assert div_xe.toString() == '<div ID="xa" a="b">obsah xa divu</div>'
-    assert div_xex.toString() == '<div id="xex" a="b">obsah xex divu</div>'
+    assert div_xe.to_string() == '<div ID="xa" a="b">obsah xa divu</div>'
+    assert div_xex.to_string() == '<div id="xex" a="b">obsah xex divu</div>'
 
-    assert div_xe.getTagName() == "div"
-    assert div_xex.getTagName() == "div"
+    assert div_xe.name == "div"
+    assert div_xex.name == "div"
