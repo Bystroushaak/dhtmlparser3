@@ -93,6 +93,22 @@ class Tag:
 
         return output
 
+    def find(self, name, p=None, fn=None, case_sensitive=False):
+        return list(self.find_depth_first_iter(name, p, fn, case_sensitive))
+
+    def findb(self, name, p=None, fn=None, case_sensitive=False):
+        return list(self.find_breadth_first_iter(name, p, fn, case_sensitive))
+
+    def find_depth_first_iter(self, name, p=None, fn=None, case_sensitive=False):
+        for item in self.depth_first_iterator(tags_only=True):
+            if item._is_almost_equal(name, p, fn, case_sensitive):
+                yield item
+
+    def find_breadth_first_iter(self, name, p=None, fn=None, case_sensitive=False):
+        for item in self.breadth_first_iterator(tags_only=True):
+            if item._is_almost_equal(name, p, fn, case_sensitive):
+                yield item
+
     def depth_first_iterator(
         self, tags_only=False
     ) -> Iterator[Union["Tag", str, Comment]]:
@@ -120,22 +136,6 @@ class Tag:
         for item in self.content:
             if isinstance(item, Tag):
                 yield from item.breadth_first_iterator(tags_only, False)
-
-    def find(self, name, p=None, fn=None, case_sensitive=False):
-        return list(self.find_depth_first_iter(name, p, fn, case_sensitive))
-
-    def findb(self, name, p=None, fn=None, case_sensitive=False):
-        return list(self.find_breadth_first_iter(name, p, fn, case_sensitive))
-
-    def find_depth_first_iter(self, name, p=None, fn=None, case_sensitive=False):
-        for item in self.depth_first_iterator(tags_only=True):
-            if item._is_almost_equal(name, p, fn, case_sensitive):
-                yield item
-
-    def find_breadth_first_iter(self, name, p=None, fn=None, case_sensitive=False):
-        for item in self.breadth_first_iterator(tags_only=True):
-            if item._is_almost_equal(name, p, fn, case_sensitive):
-                yield item
 
     def _is_almost_equal(self, other_name, p=None, fn=None, case_sensitive=False):
         tag_name = self.name
