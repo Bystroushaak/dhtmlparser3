@@ -4,6 +4,7 @@ Changelog
 3.0.0
 -----
     - Rewritten to use different parser, support for HTML entities.
+    - Structure of the classes completely changed, now Tag & Comment are used instead of HTMLElement.
 
 2.2.3
 -----
