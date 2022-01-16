@@ -3,10 +3,16 @@ class Comment:
         self.content = content
 
     def to_string(self):
-        if self.content == " ":
+        if not self.content.strip():
             return "<!-- -->"
 
-        return f"<!--{self.content}-->"
+        return f"<!-- {self.content.strip()} -->"
+
+    def prettify(self, depth, dont_format=False):
+        if dont_format:
+            return self.to_string()
+
+        return f"{depth * '  '}{self.to_string()}"
 
     def __repr__(self):
         return self.to_string()

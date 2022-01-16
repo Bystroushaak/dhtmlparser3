@@ -246,6 +246,37 @@ class Tag:
 
         return True
 
+    def prettify(self, depth=0, dont_format=False):
+        tag = self.tag_to_str()
+        indent = depth * "  "
+
+        if self.is_non_pair and not self.content:
+            return f"{indent}{tag}\n"
+
+        end_tag = "" if self.is_non_pair else f"</{self.name}>"
+
+        if not dont_format and self.name in {"pre", "style", "script"}:
+            dont_format = True
+
+        content = ""
+        for item in self.content:
+            if isinstance(item, str):
+                content += item
+            else:
+                content += item.prettify(depth + 1, dont_format=dont_format)
+
+        if dont_format:
+            return f"{tag}{content}{end_tag}\n"
+
+        is_multiline = sum(1 for x in content.strip() if x == "\n") > 1
+        if is_multiline:
+            if content.endswith("\n"):
+                return f"{indent}{tag}\n{content}{indent}{end_tag}\n"
+
+            return f"{indent}{tag}\n{content}\n{indent}{end_tag}\n"
+
+        return f"{indent}{tag}{content}{end_tag}\n"
+
     def __repr__(self):
         parameters = (
             f"{repr(self.name)}",
