@@ -104,13 +104,15 @@ def test_recovery_after_unclosed_tag():
 
     dom = dhtmlparser3.parse(inp)
 
-    assert len(dom.c) == 5
+    assert len(dom.c) == 6
 
-    assert dom.name == "code"
-    assert dom.c[0] == "Bla</code\n"
-    assert dom.c[1] == Comment(" ")
-    assert dom.c[3].name == "div"
-    assert dom.c[3].p == {"class": "rating"}
+    assert dom.name == ""
+    assert dom.c[0].name == "code"
+    assert dom.c[0].is_non_pair
+    assert dom.c[1] == "Bla</code\n"
+    assert dom.c[2] == Comment(" ")
+    assert dom.c[4].name == "div"
+    assert dom.c[4].p == {"class": "rating"}
 
 
 def test_recovery_after_is_smaller_than_sign():
@@ -137,3 +139,61 @@ def test_non_pair_structure():
     assert not dom.c[1].content
     assert dom.c[2].name == "hr"
     assert not dom.c[2].content
+
+
+def test_nonpair_closing():
+    dom = dhtmlparser3.parse("""<div><br><img><hr>""")
+
+    assert dom.name == ""
+    assert len(dom.c) == 4
+
+    assert dom.c[0].name == "div"
+    assert not dom.c[0].content
+    assert dom.c[1].name == "br"
+    assert not dom.c[1].content
+    assert dom.c[2].name == "img"
+    assert not dom.c[2].content
+    assert dom.c[3].name == "hr"
+    assert not dom.c[3].content
+
+
+def test_correct_nonpair_behavior():
+    dom = dhtmlparser3.parse("""<!DOCTYPE html>
+<html>
+<head>
+  <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Bystroushaak's blog</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="alternate" type="application/atom+xml" href="https://blog.rfox.eu/atom.xml">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@Bystroushaak">
+  <script src="https://www.googletagmanager.com/gtag/js?id=UA-142545439-1"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-142545439-1');
+  </script>
+</head>
+</html>""")
+
+    assert dom.tags[1].name == "html"
+
+    head = dom.tags[1].tags[0]
+    assert head.name == "head"
+    assert head.tags[0].name == "meta"
+    assert head.tags[0].is_non_pair
+    assert head.tags[1].name == "meta"
+    assert head.tags[2].name == "title"
+    assert head.tags[3].name == "link"
+    assert head.tags[4].name == "link"
+    assert head.tags[5].name == "link"
+    assert head.tags[6].name == "meta"
+    assert head.tags[7].name == "meta"
+    assert head.tags[7].p["content"] == "@Bystroushaak"
+    assert head.tags[8].name == "script"
+    assert head.tags[8].p["src"] == "https://www.googletagmanager.com/gtag/js?id=UA-142545439-1"
+    assert head.tags[9].name == "script"
