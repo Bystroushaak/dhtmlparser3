@@ -1,3 +1,4 @@
+from typing import Dict
 from typing import List
 from typing import Union
 from typing import Iterator
@@ -28,12 +29,16 @@ class Tag:
         self._wfind_only_on_content = False
 
     @property
-    def p(self):
+    def p(self) -> Dict[str, str]:
         return self.parameters
 
     @property
     def c(self):
         return self.content
+
+    @property
+    def tags(self) -> List["Tag"]:
+        return [x for x in self.content if isinstance(x, Tag)]
 
     def double_link(self):
         for item in self.content:
