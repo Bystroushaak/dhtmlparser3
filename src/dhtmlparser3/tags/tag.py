@@ -302,6 +302,9 @@ class Tag:
         return True
 
     def prettify(self, depth=0, dont_format=False) -> str:
+        if self.name == "":
+            return self._just_prettify_the_content()
+
         tag = self.tag_to_str()
         indent = depth * "  "
 
@@ -316,7 +319,8 @@ class Tag:
         content = ""
         for item in self.content:
             if isinstance(item, str):
-                content += item
+                if dont_format or item.strip():
+                    content += item
             else:
                 content += item.prettify(depth + 1, dont_format=dont_format)
 
@@ -330,7 +334,22 @@ class Tag:
 
             return f"{indent}{tag}\n{content}\n{indent}{end_tag}\n"
 
+        if content.startswith("  ") and content.endswith("\n"):
+            return f"{indent}{tag}\n{content}{indent}{end_tag}\n"
+
         return f"{indent}{tag}{content}{end_tag}\n"
+
+    def _just_prettify_the_content(self):
+        outputs = []
+
+        for item in self.content:
+            if isinstance(item, str):
+                if item.strip():
+                    outputs.append(item)
+            else:
+                outputs.append(item.prettify(0))
+
+        return "\n".join(outputs)
 
     def __repr__(self):
         parameters = (
