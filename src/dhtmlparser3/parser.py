@@ -79,10 +79,13 @@ class Parser:
             element_stack.append(new_top_element)
             top_element = new_top_element
 
-        if len(root_elem.content) == 1:
-            return root_elem.content[0]
+        if len(element_stack) > 1:
+            self._reshape_non_pair_tags(element_stack, root_elem)
 
         gc.enable()
+
+        if len(root_elem.content) == 1:
+            return root_elem.content[0]
 
         return root_elem
 
@@ -107,7 +110,9 @@ class Parser:
         # find which one was closed and treat all others as nonpair
         closed_element_index = element_stack.index(closed_element) + 1
         non_pairs = element_stack[closed_element_index:]
-        element_stack = element_stack[:closed_element_index]
+        new_element_stack = element_stack[:closed_element_index]
+        element_stack.clear()
+        element_stack.extend(new_element_stack)
 
         # create list of (element, parent) from the non_pairs
         shifted_non_pairs = non_pairs[:]
@@ -115,9 +120,15 @@ class Parser:
         shifted_non_pairs.insert(0, element_stack[-1])
         for npt, parent in reversed(list(zip(non_pairs, shifted_non_pairs))):
             self._move_content_to_parent(npt, parent)
+            npt.is_non_pair = True
 
-        element_stack.pop()
-        return element_stack[-1]
+        if element_stack:
+            element_stack.pop()
+
+            if element_stack:
+                return element_stack[-1]
+
+        return closed_element
 
     def _move_content_to_parent(self, non_pair_tag: Tag, parent: Tag):
         """
@@ -126,7 +137,11 @@ class Parser:
         if not non_pair_tag.content:
             return
 
-        npt_index_in_parent = parent.content.index(non_pair_tag)
+        try:
+            npt_index_in_parent = parent.content.index(non_pair_tag)
+        except ValueError:
+            npt_index_in_parent = 0
+
         for sub_tag in reversed(non_pair_tag.content):
             parent.content.insert(npt_index_in_parent + 1, sub_tag)
 
