@@ -1,19 +1,18 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+#!/usr/bin/env python3
 """
 DHTMLParserPy example how to find every link in document.
 """
+import urllib.request
 
-import urllib
 import dhtmlparser3
 
-f = urllib.urlopen("http://google.com")
-data = f.read()
-f.close()
 
-dom = dhtmlparser3.parseString(data)
+with urllib.request.urlopen("http://blog.rfox.eu") as resp:
+    data = resp.read().decode("utf-8")
 
+dom = dhtmlparser3.parse(data)
 for link in dom.find("a"):
-	if "href" in link.params:
-		print link.params["href"]
+    if "href" in link.p:
+        print(link.p["href"])
+
+print(dom)
