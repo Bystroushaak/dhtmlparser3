@@ -75,6 +75,26 @@ class Tag:
 
         return output
 
+    def remove(self, offending_item: Union[str, "Tag", Comment]) -> bool:
+        """
+        Remove `offending_item` anywhere from the dom.
+
+        Item is matched using `is` operator, so it better be something you've
+        found using .find() or other relevant methods.
+
+        Returns:
+            bool: True if the item was found and removed.
+        """
+        for item in self.content:
+            if item is offending_item:
+                self.remove_item(offending_item)
+                return True
+
+            if isinstance(item, Tag) and item.remove(offending_item):
+                return True
+
+        return False
+
     def remove_item(self, item: Union[str, "Tag", Comment]):
         """
         Remove the item from the .content property.
