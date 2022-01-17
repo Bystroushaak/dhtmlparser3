@@ -468,8 +468,20 @@ def test_replace_with():
     assert dom.to_string() == "<div><another /></div>"
 
 
+def test_is_almost_equal():
+    assert Tag("div1")._is_almost_equal("DIV1")
+    assert not Tag("div1")._is_almost_equal("div2")
+
+
 def test_remove_item():
     dom = dhtmlparser3.parse("<div><nonpair /></div>")
     dom.remove_item(dom.find("nonpair")[0])
 
     assert dom.to_string() == "<div></div>"
+
+
+def test_more_complex_remove_item():
+    dom = dhtmlparser3.parse("<div><div1>x</div1><div2>y</div2></div>")
+    dom.remove_item(dom.find("div1")[0])
+
+    assert dom.to_string() == "<div><div2>y</div2></div>"
