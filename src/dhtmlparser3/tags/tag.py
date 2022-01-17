@@ -30,23 +30,42 @@ class Tag:
 
     @property
     def p(self) -> Dict[str, str]:
+        """
+        Shortcut for .parameters, used extensively in tests.
+        """
         return self.parameters
 
     @property
     def c(self):
+        """
+        Shortcut for .content, used extensively in tests.
+        """
         return self.content
 
     @property
     def tags(self) -> List["Tag"]:
+        """
+        Same as .c, but returns only tag instances. Useful for ignoring
+        whitespace and comment clutter and iterating over the real dom structure.
+        """
         return [x for x in self.content if isinstance(x, Tag)]
 
     def double_link(self):
+        """
+        Make the DOM hierarchy double-linked. Each content element now points
+        to the parent element.
+        """
         for item in self.content:
             if isinstance(item, Tag):
                 item.parent = self
                 item.double_link()
 
-    def remove_tags(self):
+    def remove_tags(self) -> str:
+        """
+        Return content but remove all tags.
+
+        This is sometimes useful for processing messy websites.
+        """
         output = ""
         for item in self.content:
             if isinstance(item, Tag):
@@ -56,28 +75,36 @@ class Tag:
 
         return output
 
-    def remove_item(self, stuff):
-        if isinstance(stuff, str):
-            self.content.remove(stuff)
-        elif isinstance(stuff, Comment):
+    def remove_item(self, item: Union[str, "Tag", Comment]):
+        """
+        Remove the item from the .content property.
+
+        If the `item` is Tag instance, match it using tag name and parameters.
+        """
+        if isinstance(item, str):
+            self.content.remove(item)
+        elif isinstance(item, Comment):
             self.content = [
                 item
                 for item in self.content
-                if not (isinstance(item, Comment) and item.content == stuff.content)
+                if not (isinstance(item, Comment) and item.content == item.content)
             ]
-        elif isinstance(stuff, Tag):
+        elif isinstance(item, Tag):
             self.content = [
                 item
                 for item in self.content
                 if not (
                     isinstance(item, Tag)
-                    and stuff._is_almost_equal(stuff.name, stuff.parameters)
+                    and item._is_almost_equal(item.name, item.parameters)
                 )
             ]
         else:
-            raise ValueError(f"Can't remove `{repr(stuff)}`")
+            raise ValueError(f"Can't remove `{repr(item)}`")
 
-    def to_string(self):
+    def to_string(self) -> str:
+        """
+        Get HTML representation of the tag and the content.
+        """
         output = self.tag_to_str()
         for item in self.content:
             if isinstance(item, str):
@@ -90,7 +117,10 @@ class Tag:
 
         return output
 
-    def tag_to_str(self):
+    def tag_to_str(self) -> str:
+        """
+        Convert just the tag with parameters to string, without content.
+        """
         if not self.name:
             return ""
 
@@ -99,7 +129,7 @@ class Tag:
 
         return f"<{self.name}{self._parameters_to_str()}>"
 
-    def _parameters_to_str(self):
+    def _parameters_to_str(self) -> str:
         if not self.parameters:
             return ""
 
@@ -112,7 +142,7 @@ class Tag:
 
         return " " + " ".join(parameters)
 
-    def content_str(self):
+    def content_str(self) -> str:
         output = ""
         for item in self.content:
             if isinstance(item, str):
@@ -122,7 +152,7 @@ class Tag:
 
         return output
 
-    def replace_with(self, item):
+    def replace_with(self, item: "Tag"):
         if not isinstance(item, Tag):
             raise TypeError(f"Can't replace `item` with `{item.__class__}`!")
 
@@ -251,7 +281,7 @@ class Tag:
 
         return True
 
-    def prettify(self, depth=0, dont_format=False):
+    def prettify(self, depth=0, dont_format=False) -> str:
         tag = self.tag_to_str()
         indent = depth * "  "
 
