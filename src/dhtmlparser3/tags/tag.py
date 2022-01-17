@@ -85,17 +85,17 @@ class Tag:
             self.content.remove(item)
         elif isinstance(item, Comment):
             self.content = [
-                item
-                for item in self.content
-                if not (isinstance(item, Comment) and item.content == item.content)
+                x
+                for x in self.content
+                if not (isinstance(x, Comment) and x.content == item.content)
             ]
         elif isinstance(item, Tag):
             self.content = [
-                item
-                for item in self.content
+                x
+                for x in self.content
                 if not (
-                    isinstance(item, Tag)
-                    and item._is_almost_equal(item.name, item.parameters)
+                    isinstance(x, Tag)
+                    and x._is_almost_equal(item.name, item.parameters)
                 )
             ]
         else:
@@ -243,7 +243,7 @@ class Tag:
                 yield from item.breadth_first_iterator(tags_only, False)
 
     def _is_almost_equal(
-        self, other_name, p=None, fn=None, case_sensitive=False
+        self, other_name: str, p: dict = None, fn=None, case_sensitive=False
     ) -> bool:
         tag_name = self.name
         if not case_sensitive:
