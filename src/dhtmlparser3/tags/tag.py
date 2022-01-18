@@ -420,3 +420,6 @@ class Tag:
             del self.parameters[key]
         else:
             self.remove_item(self.tags[key])
+
+    def __iter__(self):
+        return iter(self.tags)

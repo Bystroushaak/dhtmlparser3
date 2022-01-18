@@ -586,3 +586,11 @@ def test___delitem__():
 
     del div["param"]
     assert str(dom) == '<div></div>'
+
+
+def test___iter__():
+    dom = dhtmlparser3.parse("<div param=1>  <content />  </div>")
+    content = dom.find("content")[0]
+
+    for item in dom:
+        assert item == content
