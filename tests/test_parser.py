@@ -147,14 +147,24 @@ def test_nonpair_closing():
     assert dom.name == ""
     assert len(dom.c) == 4
 
-    assert dom.c[0].name == "div"
-    assert not dom.c[0].content
-    assert dom.c[1].name == "br"
-    assert not dom.c[1].content
-    assert dom.c[2].name == "img"
-    assert not dom.c[2].content
-    assert dom.c[3].name == "hr"
-    assert not dom.c[3].content
+    div = dom.c[0]
+    assert div.name == "div"
+    assert not div.content
+
+    br = dom.c[1]
+    assert br.name == "br"
+    assert not br.content
+    assert br.parent == div
+
+    img = dom.c[2]
+    assert img.name == "img"
+    assert not img.content
+    assert img.parent == div
+
+    hr = dom.c[3]
+    assert hr.name == "hr"
+    assert not hr.content
+    assert hr.parent == div
 
 
 def test_correct_nonpair_behavior():

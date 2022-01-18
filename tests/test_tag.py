@@ -485,3 +485,4 @@ def test_more_complex_remove_item():
     dom.remove_item(dom.find("div1")[0])
 
     assert dom.to_string() == "<div><div2>y</div2></div>"
+    assert dom.find("div2")[0].parent == dom.find("div")[0]
