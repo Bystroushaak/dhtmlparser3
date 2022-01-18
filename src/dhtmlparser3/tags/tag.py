@@ -351,7 +351,13 @@ class Tag:
 
         return "\n".join(outputs)
 
-    def __repr__(self):
+    def __str__(self) -> str:
+        return self.to_string()
+
+    def __bytes__(self) -> bytes:
+        return self.to_string().encode("utf-8")
+
+    def __repr__(self) -> str:
         parameters = (
             f"{repr(self.name)}",
             f"parameters={repr(self.parameters)}",
@@ -377,3 +383,40 @@ class Tag:
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __bool__(self):
+        return bool(self.content)
+
+    def __len__(self):
+        return len(self.tags)
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            return self.parameters[item]
+        else:
+            return self.tags[item]
+
+    def __setitem__(self, key, value):
+        if isinstance(key, str):
+            self.parameters[key] = str(value)
+        elif isinstance(key, slice):  # used for inserting
+            if key.start == -1:
+                self.content.append(value)
+            elif key.start == 0:
+                self.content.insert(0, value)
+            else:
+                # use .tags as reference
+                item = self.tags[key.start]
+                index = self.content.index(item)
+                self.content.insert(index, value)
+        else:
+            self.content[key] = value
+
+        if isinstance(value, Tag):
+            value.parent = self
+
+    def __delitem__(self, key):
+        if isinstance(key, str):
+            del self.parameters[key]
+        else:
+            self.remove_item(self.tags[key])

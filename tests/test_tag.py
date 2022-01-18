@@ -460,7 +460,7 @@ def test_replace_with():
     dom = dhtmlparser3.parse("<div><nonpair /></div>")
     nonpair = dom.find("nonpair")[0]
 
-    assert nonpair
+    assert nonpair is not None
 
     nonpair.replace_with(Tag("another", is_non_pair=True))
 
@@ -486,3 +486,103 @@ def test_more_complex_remove_item():
 
     assert dom.to_string() == "<div><div2>y</div2></div>"
     assert dom.find("div2")[0].parent == dom.find("div")[0]
+
+
+def test___str__():
+    dom = dhtmlparser3.parse("<div><nonpair /></div>")
+    assert str(dom) == "<div><nonpair /></div>"
+
+
+def test___bytes__():
+    dom = dhtmlparser3.parse("<div><nonpair /></div>")
+    assert bytes(dom) == b"<div><nonpair /></div>"
+
+
+def test__bool():
+    dom = dhtmlparser3.parse("<div><nonpair /></div>")
+    div = dom.find("div")[0]
+    nonpair = dom.find("nonpair")[0]
+
+    assert dom
+    assert div
+    assert not nonpair
+
+
+def test___len__():
+    dom = dhtmlparser3.parse("<div><nonpair /></div>")
+    div = dom.find("div")[0]
+
+    assert len(div) == 1
+
+    dom = dhtmlparser3.parse("<div>\n  <nonpair />  </div>")
+    div = dom.find("div")[0]
+
+    assert len(div) == 1
+
+
+def test___getitem__():
+    dom = dhtmlparser3.parse("<div param=1>\n  <nonpair />  </div>")
+    div = dom.find("div")[0]
+    nonpair = dom.find("nonpair")[0]
+
+    assert div["param"] == "1"
+    assert div[0] == nonpair
+
+
+def test___getitem___range():
+    dom = dhtmlparser3.parse("<div param=1><first /><second /><third /></div>")
+    div = dom.find("div")[0]
+    first = dom.find("first")[0]
+    second = dom.find("second")[0]
+    third = dom.find("third")[0]
+
+    assert div[0] == first
+    assert div[1] == second
+    assert div[2] == third
+
+    assert div[0:2] == [first, second]
+    assert div[-1] == third
+
+
+def test___setitem___parameters():
+    dom = dhtmlparser3.parse("<div param=1></div>")
+    div = dom.find("div")[0]
+
+    div["second"] = 2
+    assert str(dom) == '<div param="1" second="2"></div>'
+
+
+def test___setitem___insert_content():
+    dom = dhtmlparser3.parse("<div param=1></div>")
+    div = dom.find("div")[0]
+
+    div[0:] = Tag("test", is_non_pair=True)
+    assert str(dom) == '<div param="1"><test /></div>'
+
+    div[0:] = Tag("div")
+    assert str(dom) == '<div param="1"><div></div><test /></div>'
+
+    div[-1:] = Tag("xex", is_non_pair=True)
+    assert str(dom) == '<div param="1"><div></div><test /><xex /></div>'
+
+    div[1:] = Tag("xxx", is_non_pair=True)
+    assert str(dom) == '<div param="1"><div></div><xxx /><test /><xex /></div>'
+
+
+def test___setitem___replace_content():
+    dom = dhtmlparser3.parse("<div param=1><content /></div>")
+    div = dom.find("div")[0]
+
+    div[0] = Tag("test", is_non_pair=True)
+    assert str(dom) == '<div param="1"><test /></div>'
+
+
+def test___delitem__():
+    dom = dhtmlparser3.parse("<div param=1><content /></div>")
+    div = dom.find("div")[0]
+
+    del div[0]
+    assert str(dom) == '<div param="1"></div>'
+
+    del div["param"]
+    assert str(dom) == '<div></div>'
