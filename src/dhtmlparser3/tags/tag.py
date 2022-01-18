@@ -1,3 +1,4 @@
+import html
 from typing import Dict
 from typing import List
 from typing import Union
@@ -128,7 +129,7 @@ class Tag:
         output = self.tag_to_str()
         for item in self.content:
             if isinstance(item, str):
-                output += item
+                output += html.escape(item)
             else:
                 output += item.to_string()
 
@@ -320,7 +321,7 @@ class Tag:
         for item in self.content:
             if isinstance(item, str):
                 if dont_format or item.strip():
-                    content += item
+                    content += html.escape(item)
             else:
                 content += item.prettify(depth + 1, dont_format=dont_format)
 
@@ -345,7 +346,7 @@ class Tag:
         for item in self.content:
             if isinstance(item, str):
                 if item.strip():
-                    outputs.append(item)
+                    outputs.append(html.escape(item))
             else:
                 outputs.append(item.prettify(0))
 

@@ -1,15 +1,7 @@
 import pytest
 
 import dhtmlparser3
-from dhtmlparser3.tokenizer import Tokenizer
-
 from dhtmlparser3.tags.tag import Tag
-
-from dhtmlparser3.tokens import TextToken
-from dhtmlparser3.tokens import TagToken
-from dhtmlparser3.tokens import ParameterToken
-from dhtmlparser3.tokens import CommentToken
-from dhtmlparser3.tokens import EntityToken
 
 
 def test_constructor_with_content():
@@ -594,3 +586,10 @@ def test___iter__():
 
     for item in dom:
         assert item == content
+
+
+def test_entities():
+    dom = dhtmlparser3.parse("<div param=1>&lt;</div>")
+    assert dom.content_str() == "<"
+
+    assert str(dom) == '<div param="1">&lt;</div>'
