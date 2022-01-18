@@ -133,12 +133,20 @@ def test_non_pair_structure():
     assert dom.name == "div"
     assert len(dom.c) == 3
 
-    assert dom.c[0].name == "br"
-    assert not dom.c[0].content
-    assert dom.c[1].name == "img"
-    assert not dom.c[1].content
-    assert dom.c[2].name == "hr"
-    assert not dom.c[2].content
+    br = dom.c[0]
+    assert br.name == "br"
+    assert not br.content
+    assert br.parent == dom
+
+    img = dom.c[1]
+    assert img.name == "img"
+    assert not img.content
+    assert img.parent == dom
+
+    hr = dom.c[2]
+    assert hr.name == "hr"
+    assert not hr.content
+    assert hr.parent == dom
 
 
 def test_nonpair_closing():
@@ -154,17 +162,17 @@ def test_nonpair_closing():
     br = dom.c[1]
     assert br.name == "br"
     assert not br.content
-    assert br.parent == div
+    assert br.parent == div.parent
 
     img = dom.c[2]
     assert img.name == "img"
     assert not img.content
-    assert img.parent == div
+    assert img.parent == div.parent
 
     hr = dom.c[3]
     assert hr.name == "hr"
     assert not hr.content
-    assert hr.parent == div
+    assert hr.parent == div.parent
 
 
 def test_correct_nonpair_behavior():

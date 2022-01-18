@@ -76,6 +76,7 @@ class Parser:
 
             new_top_element = token.to_tag()
             top_element.content.append(new_top_element)
+            new_top_element.parent = top_element
             element_stack.append(new_top_element)
             top_element = new_top_element
 
@@ -121,6 +122,7 @@ class Parser:
         for npt, parent in reversed(list(zip(non_pairs, shifted_non_pairs))):
             self._move_content_to_parent(npt, parent)
             npt.is_non_pair = True
+            npt.parent = closed_element
 
         if element_stack:
             element_stack.pop()
