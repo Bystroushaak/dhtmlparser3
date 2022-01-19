@@ -12,9 +12,10 @@ from dhtmlparser3.tags.comment import Comment
 class Tag:
     """
     Attributes:
-        .name (str): Name of the parsed tag.
-        .parameters (SpecialDict): Dictionary for the parameters.
-        .content (list): List of sub-elements.
+        name (str): Name of the parsed tag.
+        parameters (SpecialDict): Dictionary for the parameters.
+        content (list): List of sub-elements.
+        parent (Tag): Reference to parent element.
     """
     _DICT_INSTANCE = SpecialDict
 
@@ -163,7 +164,7 @@ class Tag:
         parameters = []
         for key, value in self.parameters.items():
             if value:
-                parameters.append(f'{key}="{escape(value)}"')
+                parameters.append(f'{key}="{escape(str(value))}"')
             else:
                 parameters.append(f"{key}")
 
@@ -179,13 +180,14 @@ class Tag:
 
         return output
 
-    def replace_with(self, item: "Tag"):
+    def replace_with(self, item: "Tag", keep_content=True):
         if not isinstance(item, Tag):
             raise TypeError(f"Can't replace `item` with `{item.__class__}`!")
 
         self.name = item.name
         self.parameters = item.parameters.copy()
-        self.content = item.content[:]
+        if not keep_content:
+            self.content = item.content[:]
         self.is_non_pair = item.is_non_pair
         self._wfind_only_on_content = item._wfind_only_on_content
 
@@ -417,7 +419,9 @@ class Tag:
                 index = self.content.index(item)
                 self.content.insert(index, value)
         else:
-            self.content[key] = value
+            item = self.tags[key]
+            index = self.content.index(item)
+            self.content[index] = value
 
         if isinstance(value, Tag):
             value.parent = self
