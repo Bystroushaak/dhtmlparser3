@@ -372,6 +372,11 @@ class Tag:
             f"parameters={repr(self.parameters)}",
             f"is_non_pair={self.is_non_pair}",
         )
+        if self._wfind_only_on_content:
+            parameters = (
+                'name=""',
+                f'content={repr(self.content)}'
+            )
 
         return f"{self.__class__.__name__}({', '.join(parameters)})"
 
