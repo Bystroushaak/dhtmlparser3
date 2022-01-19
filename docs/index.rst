@@ -33,7 +33,7 @@ Parse DOM
 
 The first thing you'll need to do in order to work with the HTML code is parse it into the DOM.
 
-To do that, import the module and then call a :func:`parse` on the text you want to parse.
+To do that, import the module and then call a :func:`.parse` on the text you want to parse.
 
 ::
 
@@ -84,7 +84,7 @@ The second important property is :attr:`.content`, where the content of the tag 
 
 :attr:`.content` property consists of either :class:`.Tag`, :class:`.Comment`, or ``str`` objects. This is because the parser is trying to keep all of the information to be able to restore whitespace-perfect original representation of the HTML.
 
-But in general, if you want a string from the content, call :meth:`.Tag.content_str`:
+But in general, if you want a string from the content, call :meth:`.content_str`:
 
 ::
 
@@ -98,7 +98,7 @@ Let's see the same example with the ``<p>`` tag:
     >>> dom.find("p")[0].content_str()
     'Some content. <a href="https://blog.rfox.eu">Link</a>.'
 
-If you want the content without tags, you can call :meth:`.Tag.content_without_tags()`:
+If you want the content without tags, you can call :meth:`.content_without_tags()`:
 
 ::
 
@@ -287,13 +287,13 @@ More complex example may include matching the elements in the tree, for example 
     >>> dom.find("a", {"class": "active"}, fn=lambda x: x.parent.name != "div")
     [Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)]
 
-In addition to :meth:`.find`, there is also :meth:`match`. What it does is that it matches the paths specified by the arguments::
+In addition to :meth:`.find`, there is also :meth:`.match`. What it does is that it matches the paths specified by the arguments::
 
     >>> dom.match("span", "a")
     [Tag('a', parameters=SpecialDict([('href', 'not this')]), is_non_pair=True),
      Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)]
 
-As you can see, the elements which are ``<a>`` tags in ``<span>`` were matched. You can use all arguments that :meth:`find` takes as dictionaries (``**kwargs``)::
+As you can see, the elements which are ``<a>`` tags in ``<span>`` were matched. You can use all arguments that :meth:`.find` takes as dictionaries (``**kwargs``)::
 
     >>> dom.match("span", {"name": "a", "p": {"class": "active"}})
     [Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)]
@@ -308,10 +308,10 @@ This way, you can look for patterns and sub-patterns and so on.
 Other useful things to know
 ---------------------------
 
-:meth:`remove`
-++++++++++++++
+:meth:`.remove`
++++++++++++++++
 
-:meth:`remove` will remove given element from the sub-tree. The element has to be an actual element from the tree, that is the result of :meth:`find` call or some other method of traversal of the tree.
+:meth:`.remove` will remove given element from the sub-tree. The element has to be an actual element from the tree, that is the result of :meth:`.find` call or some other method of traversal of the tree.
 
 For example, to remove all links::
 
@@ -332,10 +332,10 @@ For example, to remove all links::
       </span>
     </div>
 
-:meth:`prettify`
-++++++++++++++++
+:meth:`.prettify`
++++++++++++++++++
 
-As you can see, a lot of whitespaces were left. To get rid of them, you can call :meth:`prettify`::
+As you can see, a lot of whitespaces were left. To get rid of them, you can call :meth:`.prettify`::
 
     >>> print(dom.prettify())
     <div>
@@ -344,10 +344,10 @@ As you can see, a lot of whitespaces were left. To get rid of them, you can call
       </span>
     </div>
 
-:meth:`replace_with`
-++++++++++++++++++++
+:meth:`.replace_with`
++++++++++++++++++++++
 
-You can replace tags by calling :meth:`replace_with`, and depending on the ``keep_content`` parameter (default ``True``), it will keep the content same:
+You can replace tags by calling :meth:`.replace_with`, and depending on the ``keep_content`` parameter (default ``True``), it will keep the content same:
 
     >>> dom.find("span")[0].replace_with(dhtmlparser3.Tag("p"))
     >>> print(dom.prettify())
@@ -383,7 +383,7 @@ Matching using :meth:`.find` is case insensitive. You can make it case sensitive
 
 Instead of :meth:`.find`, you can call :meth:`.find_depth_first_iter` to get lazy evaluated iterator.
 
-You can compare elements using ``==``, and it will compare only equality of :attr:`.name`, :attr:`.parameters` and :attr:`is_non_pair`, not the subtree.
+You can compare elements using ``==``, and it will compare only equality of :attr:`.name`, :attr:`.parameters` and :attr:`.is_non_pair`, not the subtree.
 
 It is possible to iterate over tags in given element by simply using it in ``for`` loop. This will skip whitespaces.
 
