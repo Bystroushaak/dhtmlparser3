@@ -20,7 +20,7 @@ DHTMLParser3 is a lightweight HTML/XML parser created for one purpose - quick an
 
 It can be very useful when you are in need to write own "guerilla" API for some webpage, or a scrapper.
 
-If you want, you can also create HTML/XML documents more easily than by joining strings.
+It is written in pure python with no dependencies, and it can handle pretty badly broken HTML.
 
 Documentation
 =============
