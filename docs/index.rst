@@ -1,17 +1,9 @@
 .. _index:
 
-pyDHTMLParser
-=============
+dhtmlparser3
+============
 
-Python version of DHTMLParser_ DOM HTML/XML parser.
-
-This version is actually much more advanced, D version is kinda unupdated.
-
-.. _DHTMLParser: https://github.com/Bystroushaak/DHTMLParser
-
-What is it?
-===========
-DHTMLParser is a lightweight HTML/XML parser created for one purpose - quick and easy 
+dhtmlparser3 is a lightweight HTML/XML parser created for one purpose - quick and easy
 picking selected tags from DOM.
 
 It can be very useful when you are in need to write own "guerilla" API for some webpage, or a 
@@ -19,41 +11,398 @@ scrapper.
 
 If you want, you can also create HTML/XML documents more easily than by joining strings.
 
-How it works?
-=============
-The module have just one important function; :func:`.parseString`. This function takes
-a string and returns a Document Object Model made of linked :class:`.HTMLElement`
-objects (see bellow).
+The usage is super simple, and allows you to do things like pattern matching in the HTML tree.
 
-When you call :func:`.parseString`, the string argument is cut into pieces and
-then evaluated. Each piece is checked and if it looks like it could be HTML
-element, then it is put into :class:`.HTMLElement` object and proper attributes
-are set (:attr:`.HTMLElement.__istag` and so on). 
+Sources
+-------
+Source codes can be found here; https://github.com/Bystroushaak/dhtmlparser3
 
-Every following element is put into :attr:`.HTMLElement.childs` list of this
-element, until proper closing element is found by simple stack mechanism.
+Installation
+------------
+dhtmlparser3 is hosted at pypi_, so you can install it using pip::
 
-Elements with parameters are parsed and parameters are extracted into
-:attr:`.HTMLElement.params` property.
+    pip3 install dhtmlparser3
 
-Result is array of single linked trees (you can make double linke by calling 
-:func:`.makeDoubleLinked`), which is then encapsulated in a blank 
-:class:`.HTMLElement` container, which holds the whole DOM in its
-:attr:`.HTMLElement.childs` property.
+.. _pypi: https://pypi.python.org/pypi/dhtmlparser3
 
-This container can be then queried using :meth:`.HTMLElement.find`,
-:meth:`.HTMLElement.findB`, :meth:`.HTMLElement.wfind` and 
-:meth:`.HTMLElement.match` methods.
+Quick introduction
+==================
 
-XML
----
+Parse DOM
+---------
 
-This module is intended mainly for parsing HTML. If you want to parse XML and
-you don't want parser to guess nonpair tags from source, just set global module
-property :attr:`~dhtmlparser.htmlelement.NONPAIR_TAGS` to blank list.
+The first thing you'll need to do in order to work with the HTML code is parse it into the DOM.
 
-There is also ``cip`` argument of :func:`.parseString` function, which makes
-parameters of the HTML/XML tags case sensitive.
+To do that, import the module and then call a :func:`parse` on the text you want to parse.
+
+::
+
+    import dhtmlparser3
+
+    example_html = """<html>
+    <head><title>Title</title></head>
+    <body>
+    <h1>HTML</h1>
+    <p>Some content. <a href="https://blog.rfox.eu">Link</a>.</p>
+    </body>
+    </html>"""
+
+    dom = dhtmlparser3.parse(example_html)
+
+Now you have everything parsed in the tree structure of the :class:`.Tag` objects.
+
+Find links
+----------
+Let's say that you want all links in the HTML. There is a handy method :meth:`.Tag.find`, which does exactly that:
+
+::
+
+    >>> dom.find("a")
+    [Tag('a', parameters=SpecialDict([('href', 'https://blog.rfox.eu')]), nonpair=False)]
+
+The parameters are as follows:
+
+#. String name of the tag you want to find.
+#. Dict with the parameters, to specify for example, class name.
+#. (Lambda) function, which takes the tag as a parameter and should return ``True`` if it matches.
+
+You can get the link from the tag using :attr:`.parameters` property:
+
+::
+
+    >>> a = dom.find("a")[0]
+    >>> a.parameters["href"]
+    'https://blog.rfox.eu'
+
+
+The second important property is :attr:`.content`, where the content of the tag is stored.
+
+::
+
+    >>> a.content
+    ['Link']
+
+:attr:`.content` property consists of either :class:`.Tag`, :class:`.Comment`, or ``str`` objects. This is because the parser is trying to keep all of the information to be able to restore whitespace-perfect original representation of the HTML.
+
+But in general, if you want a string from the content, call :meth:`.Tag.content_str`:
+
+::
+
+    >>> a.content_str()
+    'Link'
+
+Let's see the same example with the ``<p>`` tag:
+
+::
+
+    >>> dom.find("p")[0].content_str()
+    'Some content. <a href="https://blog.rfox.eu">Link</a>.'
+
+If you want the content without tags, you can call :meth:`.Tag.content_without_tags()`:
+
+::
+
+    >>> dom.find("p")[0].content_without_tags()
+    'Some content. Link.'
+
+Structure of the in-memory objects
+----------------------------------
+
+In order to be effective when working with the DOM, it is useful to understand how the tree actually looks in memory.
+
+For example:
+
+.. code-block:: html
+
+    <html>
+    <head><title>Title</title></head>
+    <body>
+    <h1>HTML</h1>
+    <p>Some content. <a href="https://blog.rfox.eu">Link</a>.</p>
+    </body>
+    </html>
+
+is parsed to following structure:
+
+.. image:: _static/dom_structure.png
+
+Note, that the whitespaces are part of the :attr:`.content` properties.
+
+Properties of the Tag object
+----------------------------
+
+As mentioned before, the :class:`.Tag` object basically consist of two properties :attr:`.parameters` and :attr:`.content`. First one contains dictionary for the tag parameters, second one contains everything that was in the HTML tag as a list.
+
+Since writing ``.content`` and ``.prarameters`` is cumbersome, you can also use shortcuts :attr:`.p` and :attr:`.c` to access the same data:
+
+::
+
+    >>> dom = dhtmlparser3.parse('<tag param1="1" param2="2">  <content />  </tag>')
+    >>> dom.p
+    SpecialDict([('param1', '1'), ('param2', '2')])
+    >>> dom.c
+    ['  ', Tag('content', parameters=SpecialDict(), is_non_pair=True), '  ']
+
+But the :class:`.Tag` objects also support dictionary-like interface, so you can access both :attr:`.parameters` and :attr:`.content` using square brackets:
+
+::
+
+    >>> dom["param1"]
+    '1'
+    >>> dom[0]
+    Tag('content', parameters=SpecialDict(), is_non_pair=True)
+
+Notice, that ``dom[0]`` returns expected tag, even though the :attr:`.content` property contains as a first element a whitespace:
+
+::
+
+    >>> dom.c
+    ['  ', Tag('content', parameters=SpecialDict(), is_non_pair=True), '  ']
+
+That is because it is not using the :attr:`.content` for access, but :attr:`.tags` property, which returns only tags:
+
+::
+
+    >>> dom.tags
+    [Tag('content', parameters=SpecialDict(), is_non_pair=True)]
+
+Square brackets can be also used for setting and deleting the sub-elements:
+
+::
+
+    >>> dom[0] = dhtmlparser3.Tag("new_content", {"param": "new_param"},  is_non_pair=True)
+    >>> str(dom)
+    '<tag param1="1" param2="2">  <new_content param="new_param" />  </tag>'
+
+::
+
+    >>> str(dom)
+    '<tag param1="1" param2="2">    </tag>'
+
+Inserting tags using square brackets
+++++++++++++++++++++++++++++++++++++
+
+To make your life a bit easier, you can also insert tags using square brackets with slices. This is similar to calling ``.insert()`` method on a list, but it does support ``-1`` as an index for appending:
+
+::
+
+    >>> dom[0:] = dhtmlparser3.Tag("test", is_non_pair=True)
+    >>> dom[-1:] = dhtmlparser3.Tag("another", is_non_pair=True)
+    >>> str(dom)
+    '<tag param1="1" param2="2"><test />    <another /></tag>'
+
+Note that the whitespaces were not affected, as the tags were `inserted`, not replaced.
+
+Looking for specific things
+---------------------------
+
+Most common usage of the dhtmlparser3 is to look for specific things. For this, there are two handy methods :meth:`.find` and :meth:`.wfind`. First one traverses the tree depth first, second breadth first.
+
+Usually, you'll probably use :meth:`.find`.
+
+Let's see an example::
+
+    dom = dhtmlparser3.parse("""
+        <div class="page-body">
+          <figure id="d4cb77d7-f9fe-4796-b38c-f84ac9efb178" class="link-to-page">
+            <h1><a class="unroll_category" href="en/Weekly_updates.html" title="Weekly updates">📂 <u>Category: <em>Weekly updates</em></u></a></h1>
+            <div style="margin-left: 1em">
+              <h4><a class="" href="en/Weekly_updates/Newsletter_2021-10-29_Monster_post.html" title="Newsletter 2021-10-29; Monster post">📄 Newsletter 2021-10-29; Monster post</a> <time>(@2021-10-29)</time></h4>
+              <p style="margin-top: -1em;"><em>Some of the more important points in my year, and also general update regarding the tinySelf, objWiki and other projects of mine. Expect a lot of text.</em></p>
+            </div>
+            <div style="margin-left: 1em">
+              <h4><a class="" href="en/Weekly_updates/Newsletter_2021-01-08_Defragmentation_in_progress.html" title="Newsletter 2021-01-08; Defragmentation in progress">📄 Newsletter 2021-01-08; Defragmentation in progress</a> <time>(@2021-01-08)</time></h4>
+              <p style="margin-top: -1em;"><em>Opensource contributions, book report, improvements, published blogposts and generally progress in my life and work.</em></p>
+            </div>
+            <div style="margin-left: 1em">
+              <h4><a class="" href="en/Weekly_updates/Newsletter_2020-09-12_Waves_of_productivity.html" title="Newsletter 2020-09-12; Waves of productivity">📄 Newsletter 2020-09-12; Waves of productivity</a> <time>(@2020-09-12)</time></h4>
+              <p style="margin-top: -1em;"><em>Some of the stuff I did in last month and a half.</em></p>
+            </div>
+            <h4 style="text-align: right;"><a href="en/Weekly_updates.html" title="Weekly updates">& 23 more blogposts</a></h4>
+          </figure>
+          <figure id="aaede967-1ab7-4910-ba42-5ea5f8ee480f" class="link-to-page">
+            <h1><a class="unroll_category" href="en/Technological_marvels.html" title="Technological marvels">📂 <u>Category: <em>Technological marvels</em></u></a></h1>
+            <div style="margin-left: 1em">
+              <h4><a class="" href="en/Technological_marvels/Microtron_under_the_Vitkov_Hill.html" title="Microtron under the Vítkov Hill">📄 Microtron under the Vítkov Hill</a> <time>(last modified @2021-06-26)</time></h4>
+              <p style="margin-top: -1em;"><em>Introduction to rare particle accelerator in Prague.</em></p>
+            </div>
+            <div style="margin-left: 1em">
+              <h4><a class="" href="en/Technological_marvels/LVR-15_research_reactor_near_Prague.html" title="LVR-15 research reactor near Prague">📄 LVR-15 research reactor near Prague</a> <time>(@2019-11-24)</time></h4>
+              <p style="margin-top: -1em;"><em>Notes from my visit of Czechoslovakian LVR-15 research nuclear reactor in Řež near Prague.</em></p>
+            </div>
+            <div style="margin-left: 1em">
+              <h4><a class="" href="en/Technological_marvels/The_beauty_of_a_fusion_reactor.html" title="The beauty of a fusion reactor">📄 The beauty of a fusion reactor</a> <time>(@2019-06-12)</time></h4>
+              <p style="margin-top: -1em;"><em>Introduction of interesting research fusion reactor built in Germany. Contains a lot of pictures.</em></p>
+            </div>
+          </figure>
+        </div>
+    """)
+
+Let's say, that I want to obtain all links that point to the weekly updates category:
+
+::
+
+    >>> dom.find("a", fn=lambda x: x.p.get("href", "").startswith("en/Weekly"))
+    [Tag('a', parameters=SpecialDict([('class', 'unroll_category'), ('href', 'en/Weekly_updates.html'), ('title', 'Weekly updates')]), is_non_pair=False),
+     Tag('a', parameters=SpecialDict([('class', ''), ('href', 'en/Weekly_updates/Newsletter_2021-10-29_Monster_post.html'), ('title', 'Newsletter 2021-10-29; Monster post')]), is_non_pair=False),
+     Tag('a', parameters=SpecialDict([('class', ''), ('href', 'en/Weekly_updates/Newsletter_2021-01-08_Defragmentation_in_progress.html'), ('title', 'Newsletter 2021-01-08; Defragmentation in progress')]), is_non_pair=False),
+     Tag('a', parameters=SpecialDict([('class', ''), ('href', 'en/Weekly_updates/Newsletter_2020-09-12_Waves_of_productivity.html'), ('title', 'Newsletter 2020-09-12; Waves of productivity')]), is_non_pair=False),
+     Tag('a', parameters=SpecialDict([('href', 'en/Weekly_updates.html'), ('title', 'Weekly updates')]), is_non_pair=False)]
+
+As you can see, I am using lambda parameter to match specific part of the URL.
+
+Note that I am specifically using ``x.p.get("href", "")`` to access the ``href`` parameter, because not every ``<a>`` element has to have it set, in which case it will cause and exception.
+
+To obtain the URL's, all I need to do is use simple list comprehension::
+
+    >>> links = dom.find("a", fn=lambda x: x.p.get("href", "").startswith("en/Weekly"))
+    >>> [f"https://blog.rfox.eu/{x['href']}" for x in links]
+    ['https://blog.rfox.eu/en/Weekly_updates.html',
+     'https://blog.rfox.eu/en/Weekly_updates/Newsletter_2021-10-29_Monster_post.html',
+     'https://blog.rfox.eu/en/Weekly_updates/Newsletter_2021-01-08_Defragmentation_in_progress.html',
+     'https://blog.rfox.eu/en/Weekly_updates/Newsletter_2020-09-12_Waves_of_productivity.html',
+     'https://blog.rfox.eu/en/Weekly_updates.html']
+
+If I wanted content of the tags, it would be as simple as::
+
+    >>> [x.content_without_tags() for x in links]
+    ['📂 Category: Weekly updates',
+     '📄 Newsletter 2021-10-29; Monster post',
+     '📄 Newsletter 2021-01-08; Defragmentation in progress',
+     '📄 Newsletter 2020-09-12; Waves of productivity',
+     '& 23 more blogposts']
+
+More complex example may include matching the elements in the tree, for example select all links, which don't have ``<div>`` as a parent, but have ``class`` parameter set to ``active``:
+
+    >>> dom = dhtmlparser3.parse("""
+    <div>
+      <a href="not this" class="active">link</a>
+      <a href="not this">link</a>
+      <span>
+        <a href="not this">link</a>
+        <a href="this one" class="active">this one</a>
+      </span>
+    </div>
+    """)
+    >>> dom.find("a", {"class": "active"}, fn=lambda x: x.parent.name != "div")
+    [Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)]
+
+In addition to :meth:`.find`, there is also :meth:`match`. What it does is that it matches the paths specified by the arguments::
+
+    >>> dom.match("span", "a")
+    [Tag('a', parameters=SpecialDict([('href', 'not this')]), is_non_pair=True),
+     Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)]
+
+As you can see, the elements which are ``<a>`` tags in ``<span>`` were matched. You can use all arguments that :meth:`find` takes as dictionaries (``**kwargs``)::
+
+    >>> dom.match("span", {"name": "a", "p": {"class": "active"}})
+    [Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)]
+
+or lists (``*args``)::
+
+    >>> dom.match("span", ["a", {"class": "active"}])
+    [Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)]
+
+This way, you can look for patterns and sub-patterns and so on.
+
+Other useful things to know
+---------------------------
+
+:meth:`remove`
+++++++++++++++
+
+:meth:`remove` will remove given element from the sub-tree. The element has to be an actual element from the tree, that is the result of :meth:`find` call or some other method of traversal of the tree.
+
+For example, to remove all links::
+
+    >>> for link in dom.find("a", {"href": "not this"}):
+    ...  dom.remove(link)
+    ...
+    True
+    True
+    True
+    >>> print(str(dom))
+
+    <div>
+
+
+      <span>
+
+        <a href="this one" class="active">this one</a>
+      </span>
+    </div>
+
+:meth:`prettify`
+++++++++++++++++
+
+As you can see, a lot of whitespaces were left. To get rid of them, you can call :meth:`prettify`::
+
+    >>> print(dom.prettify())
+    <div>
+      <span>
+        <a href="this one" class="active">this one</a>
+      </span>
+    </div>
+
+:meth:`replace_with`
+++++++++++++++++++++
+
+You can replace tags by calling :meth:`replace_with`, and depending on the ``keep_content`` parameter (default ``True``), it will keep the content same:
+
+    >>> dom.find("span")[0].replace_with(dhtmlparser3.Tag("p"))
+    >>> print(dom.prettify())
+    <div>
+      <p>
+        <a href="this one" class="active">this one</a>
+      </p>
+    </div>
+
+Create DOM
+++++++++++
+And you can of course create the DOM from scratch::
+
+    >>> from dhtmlparser3 import Tag
+    >>> xml = Tag("xml")
+    >>> xml[0:] = Tag("container")
+    >>> xml[0][-1:] = Tag("item", {"parameter": "value"}, ["content"])
+    >>> xml[0][-1:] = Tag("item", {"parameter": "another value"}, ["another content"])
+    >>> print(xml.prettify())
+    <xml>
+      <container>
+        <item parameter="value">content</item>
+        <item parameter="another value">another content</item>
+      </container>
+    </xml>
+
+Things that may be useful to know
+---------------------------------
+
+Parsing is case sensitive.
+
+Matching using :meth:`.find` is case insensitive. You can make it case sensitive by setting ``case_sensitive`` parameter to ``True``.
+
+Instead of :meth:`.find`, you can call :meth:`.find_depth_first_iter` to get lazy evaluated iterator.
+
+You can compare elements using ``==``, and it will compare only equality of :attr:`.name`, :attr:`.parameters` and :attr:`is_non_pair`, not the subtree.
+
+It is possible to iterate over tags in given element by simply using it in ``for`` loop. This will skip whitespaces.
+
+If you want ``bytes`` representation of the DOM string, call ``bytes(dom)`` and it will work.
+
+All elements have :attr:`.parent` set by default. If you insert new elements using square brackets operator, it will be correctly set. If you however set new part of the sub-tree manually by inserting it to :attr:`.content`, you have to set it manually, or call :meth:`.double_link` on the element where you've inserted it.
+
+:func:`.parse` returns either root element, or virtual container element, which is :class:`.Tag` with empty name, if there are multiple root elements.
+
+Non-pair elements are autodetected even if they are not valid HTML, and parser should in general handle gracefully malformed HTML.
+
+Non-key-value parameters like for example ``<tag rectangle>`` are parsed to empty value in :attr:`.parameters`::
+
+    >>> dhtmlparser3.parse("<tag rectangle>")
+    Tag('tag', parameters=SpecialDict([('rectangle', '')]), is_non_pair=True)
+    >>> str(dhtmlparser3.parse("<tag rectangle>"))
+    '<tag rectangle />'
+
+Notice how the tag was correctly recognized as non-pair.
 
 Package content
 ===============
@@ -61,179 +410,34 @@ Package content
 .. toctree::
     :maxdepth: 1
 
-    /api/dhtmlparser
-    /api/dhtmlparser.htmlelement
-    /api/dhtmlparser.quoter
-    /api/dhtmlparser.specialdict
-
-Interactive example
-===================
-
-::
-
-    >>> import dhtmlparser3 as d
-        >>> dom = d.parseString("""
-        ... <root>
-        ...  <element name="xex" />
-        ... </root>
-        ... """)
-        >>> print dom
-        <dhtmlparser.HTMLElement instance at 0x240b320>
-        >>> dom.getTagName()  # blank, container element
-        ''
-
-    DOM tree now in memory looks like this
-    >>> dom = d.parseString("""
-    ... <root>
-    ...  <element name="xex" />
-    ... </root>
-    ... """)
-    >>> print dom
-    <dhtmlparser.HTMLElement instance at 0x240b320>
-    >>> dom.getTagName()  # blank, container element
-    ''
-
-DOM tree now in memory looks like this::
-
-   dom == <dhtmlparser.HTMLElement instance at 0x240b320>
-    |- .getTagName() == ""
-    |- .isTag()      == False
-    |- .params       == ""
-    |- .openertag    == None
-    |- .endtag       == None
-    `- .childs       == [<dhtmlparser.HTMLElement instance at 0x2403b90>, <dhtmlparser.HTMLElement instance at 0x2403ab8>, <dhtmlparser.HTMLElement instance at 0x240b050>, <dhtmlparser.HTMLElement instance at 0x240b248>]
-         |
-         |- .childs[0]       == <dhtmlparser.HTMLElement instance at 0x2403b90>
-         |  |- .getTagName() == "\n"
-         |  |- .isTag()      == False
-         |  |- .params       == {}
-         |  |- .openertag    == None
-         |  |- .endtag       == None
-         |  `- .childs       == []
-         |
-         |- .childs[1]         == <dhtmlparser.HTMLElement instance at 0x2403ab8>
-         |  |- .getTagName()   == "root"
-         |  |- .isTag()        == True
-         |  |- .isEndTag()     == False
-         |  |- .isOpeningTag() == True
-         |  |- .params         == {}
-         |  |- .openertag      == None
-         |  |- .endtag         == <dhtmlparser.HTMLElement instance at 0x240b050>
-         |  `- .childs         == [<dhtmlparser.HTMLElement instance at 0x2403c68>, <dhtmlparser.HTMLElement instance at 0x2403d88>, <dhtmlparser.HTMLElement instance at 0x2403ea8>]
-         |     |
-         |     |- .childs[0]       == <dhtmlparser.HTMLElement instance at 0x2403c68>
-         |     |  |- .getTagName() == '\n '
-         |     |  |- .isTag()      == False
-         |     |  |- .params       == {}
-         |     |  |- .openertag    == None
-         |     |  |- .endtag       == None
-         |     |  `- .childs       == []
-         |     |
-         |     |- .childs[1]         == <dhtmlparser.HTMLElement instance at 0x2403d88>
-         |     |  |- .getTagName()   == 'element'
-         |     |  |- .isTag()        == True
-         |     |  |- .isNonPairTag() == True
-         |     |  |- .params         == {'name': 'xex'}
-         |     |  |- .openertag      == None
-         |     |  |- .endtag         == None
-         |     |  `- .childs         == []
-         |     |
-         |     `- .childs[2]       == <dhtmlparser.HTMLElement instance at 0x2403ea8>
-         |        |- .getTagName() == '\n'
-         |        |- .isTag()      == False
-         |        |- .params       == {}
-         |        |- .openertag    == None
-         |        |- .endtag       == None
-         |        `- .childs       == []
-         |
-         |- .childs[2]       == <dhtmlparser.HTMLElement instance at 0x240b050>
-         |  |- .getTagName() == 'root'
-         |  |- .isTag()      == True
-         |  |- .isEndTag()   == True
-         |  |- .params       == {}
-         |  |- .openertag    == <dhtmlparser.HTMLElement instance at 0x2403ab8>
-         |  |- .endtag       == None
-         |  `- .childs       == []
-         |
-         `- .childs[3]       == <dhtmlparser.HTMLElement instance at 0x240b248>
-            |- .getTagName() == '\n'
-            |- .isTag()      == False
-            |- .params       == {}
-            |- .openertag    == None
-            |- .endtag       == None
-            `- .childs       == []
-
-In interactive shell, we can easily verify the tree::
-
-   >>> dom.childs[1].getTagName()
-   'root'
-   >>> dom.childs[1].childs
-   [<dhtmlparser.HTMLElement instance at 0x2403c68>, <dhtmlparser.HTMLElement instance at 0x2403d88>, <dhtmlparser.HTMLElement instance at 0x2403ea8>]
-
-and so on..
-
-Now, let say, that you know there is HTML element named ``element`` and we want
-to get it, but we don't know where it is. In that case :meth:`.HTMLElement.find`
-will help us::
-
-   >>> dom.find("element")
-   [<dhtmlparser.HTMLElement instance at 0x2403d88>]
-
-Or when we don't know name of the element, but we know that he has ``"name"`` 
-parameter (:attr:`.HTMLElement.params`) set to ``"xex"``::
-
-   >>> dom.find("", fn = lambda x: "name" in x.params and x.params["name"] == "xex")
-   [<dhtmlparser.HTMLElement instance at 0x2403d88>]
-
-Or we want only ``<element>`` tags with ``name="xex"`` parameters::
-
-   >>> dom.find("element", {"name": "xex"})
-   [<dhtmlparser.HTMLElement instance at 0x2403d88>]
-   >>> dom.find("element", {"NAME": "xex"})  # parameter names (not values!) are case  insensitive by default
-   [<dhtmlparser.HTMLElement instance at 0x2403d88>]
-
-Sources
--------
-Source codes can be found at GitHub; https://github.com/Bystroushaak/pyDHTMLParser
-
-Installation
-------------
-pyDHTMLParser is hosted at pypi_, so you can install it using pip::
-
-    pip install pyDHTMLParser
-
-.. _pypi: https://pypi.python.org/pypi/pyDHTMLParser
+    /api/dhtmlparser3
+    /api/dhtmlparser3.tag
+    /api/dhtmlparser3.comment
+    /api/dhtmlparser3.parser
+    /api/dhtmlparser3.tokenizer
+    /api/dhtmlparser3.tokens
+    /api/dhtmlparser3.quoter
+    /api/dhtmlparser3.specialdict
 
 Unittests
 ---------
-Almost everything should be tested. You can run tests using script ``run_tests.sh``
-which can be found at the root of the project::
+Almost everything should be tested. You can run the tests like this::
 
-    $ ./run_tests.sh 
+    $ export PYTHONPATH="src/:$PYTHONPATH"
+    $ py.test
     ============================= test session starts ==============================
-    platform linux2 -- Python 2.7.6, pytest-2.8.2, py-1.4.30, pluggy-0.3.1
-    rootdir: /home/bystrousak/Plocha/Dropbox/c0d3z/python/libs/pyDHTMLParser, inifile: 
-    plugins: cov-1.8.1
-    collected 68 items 
+    platform linux -- Python 3.8.10, pytest-6.2.5, py-1.11.0, pluggy-1.0.0
+    rootdir: /home/bystrousak/Desktop/Syncthing/c0d3z/python/libs/pyDHTMLParser3
+    collected 101 items
 
-    tests/test_escapers.py ..
-    tests/test_htmlelement_find.py ..........
-    tests/test_htmlelement_functions.py ..
-    tests/test_htmlelement_getters.py ............
-    tests/test_htmlelement_mult_param.py ....
-    tests/test_htmlelement_one_param.py ......
-    tests/test_htmlelement_setters.py ...
-    tests/test_module.py .................
-    tests/test_specialdict.py ............
+    tests/test_comment.py .                                                  [  0%]
+    tests/test_escapers.py ..                                                [  2%]
+    tests/test_parser.py ..........                                          [ 12%]
+    tests/test_specialdict.py ............                                   [ 24%]
+    tests/test_tag.py ......................................                 [ 62%]
+    tests/test_tokenizer.py ......................................           [100%]
 
-    ========================== 68 passed in 0.10 seconds ===========================
-
-Confused?
-=========
-If you don't understand how to use it, look at examples in ``./examples/``.
-   
-If you have questions, you can write me an email to: ``bystrousak````@kitakitsune.org``
-
+    ============================= 101 passed in 0.16s ==============================
 
 Indices and tables
 ==================
