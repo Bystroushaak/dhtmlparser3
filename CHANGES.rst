@@ -5,6 +5,11 @@ Changelog
 -----
     - Rewritten to use different parser, support for HTML entities.
     - Structure of the classes completely changed, now Tag & Comment are used instead of HTMLElement.
+    - Much more cleaner code and more comprehensive method names.
+    - By default, the tree is now double-linked without any additional cost.
+    - Implemented very useful magic methods, so indexing operators are supported for access to both parameters and content.
+    - Documentation completely reworked.
+    - Set of coverage tests is now much larger.
 
 2.2.3
 -----
