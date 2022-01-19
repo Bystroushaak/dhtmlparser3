@@ -436,16 +436,16 @@ def test_double_link():
 
 def test_remove_tags():
     dom = dhtmlparser3.parse("a<b>xax<i>xe</i>xi</b>d")
-    assert dom.remove_tags() == "axaxxexid"
+    assert dom.content_without_tags() == "axaxxexid"
 
     dom = dhtmlparser3.parse("<b></b>")
-    assert not dom.remove_tags()
+    assert not dom.content_without_tags()
 
     dom = dhtmlparser3.parse("<b><i></b>")
-    assert not dom.remove_tags()
+    assert not dom.content_without_tags()
 
     dom = dhtmlparser3.parse("<b><!-- asd --><i></b>")
-    assert not dom.remove_tags()
+    assert not dom.content_without_tags()
 
 
 def test_replace_with():
