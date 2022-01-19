@@ -287,6 +287,8 @@ More complex example may include matching the elements in the tree, for example 
     >>> dom.find("a", {"class": "active"}, fn=lambda x: x.parent.name != "div")
     [Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)]
 
+:meth:`.match`
+++++++++++++++
 In addition to :meth:`.find`, there is also :meth:`.match`. What it does is that it matches the paths specified by the arguments::
 
     >>> dom.match("span", "a")
@@ -304,6 +306,25 @@ or lists (``*args``)::
     [Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)]
 
 This way, you can look for patterns and sub-patterns and so on.
+
+:meth:`.wfind`
+++++++++++++++
+:meth:`.wfind` implements similar pattern matching to :meth:`.match`, but always wraps the result in the empty container object. This way, it is possible to chain the calls (which is not possible for :meth:`.find` and :meth:`.match`, because they return ``list``)::
+
+    >>> dom.wfind("span").wfind("a")
+    Tag(name="", content=[Tag('a', parameters=SpecialDict([('href', 'not this')]), is_non_pair=False), Tag('a', parameters=SpecialDict([('href', 'this one'), ('class', 'active')]), is_non_pair=False)])
+
+BTW, you can check if the returned container matches anything, by using ``if`` condition on the whole container, because it implements bool magic method::
+
+    >>> bool(dom.wfind("span").wfind("a"))
+    True
+    >>> bool(dom.wfind("blah"))
+    False
+
+So for example::
+
+    if dom.wfind("span").wfind("a"):
+      # .. do something
 
 Other useful things to know
 ---------------------------
@@ -332,10 +353,10 @@ For example, to remove all links::
       </span>
     </div>
 
-:meth:`.prettify`
-+++++++++++++++++
+:meth:`.Tag.prettify`
++++++++++++++++++++++
 
-As you can see, a lot of whitespaces were left. To get rid of them, you can call :meth:`.prettify`::
+As you can see, a lot of whitespaces were left. To get rid of them, you can call :meth:`.Tag.prettify`::
 
     >>> print(dom.prettify())
     <div>
