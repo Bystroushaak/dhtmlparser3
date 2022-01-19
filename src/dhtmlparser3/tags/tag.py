@@ -10,6 +10,12 @@ from dhtmlparser3.tags.comment import Comment
 
 
 class Tag:
+    """
+    Attributes:
+        .name (str): Name of the parsed tag.
+        .parameters (SpecialDict): Dictionary for the parameters.
+        .content (list): List of sub-elements.
+    """
     _DICT_INSTANCE = SpecialDict
 
     def __init__(self, name, parameters=None, content=None, is_non_pair=False):
@@ -61,7 +67,7 @@ class Tag:
                 item.parent = self
                 item.double_link()
 
-    def remove_tags(self) -> str:
+    def content_without_tags(self) -> str:
         """
         Return content but remove all tags.
 
@@ -70,7 +76,7 @@ class Tag:
         output = ""
         for item in self.content:
             if isinstance(item, Tag):
-                output += item.remove_tags()
+                output += item.content_without_tags()
             elif isinstance(item, str):
                 output += item
 
@@ -362,7 +368,7 @@ class Tag:
         parameters = (
             f"{repr(self.name)}",
             f"parameters={repr(self.parameters)}",
-            f"nonpair={self.is_non_pair}",
+            f"is_non_pair={self.is_non_pair}",
         )
 
         return f"{self.__class__.__name__}({', '.join(parameters)})"
