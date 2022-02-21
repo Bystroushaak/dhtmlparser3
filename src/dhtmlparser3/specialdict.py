@@ -149,3 +149,4 @@ class SpecialDict(OrderedDict):
     def copy(self):
         new_dict = super().copy()
         new_dict._case_mapping = self._case_mapping.copy()
+        return new_dict

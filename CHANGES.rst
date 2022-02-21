@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.5
+-----
+    - Bugfix; SpecialDict.copy() didn't return any value.
+
 3.0.4
 -----
     - Bugfix; Don't search empty tags.
