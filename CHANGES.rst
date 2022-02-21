@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.1
+-----
+    - Added `__contains__` method for Tag, so you can now test parameters using `in` operator.
+
 3.0.0
 -----
     - Rewritten to use different parser, support for HTML entities.

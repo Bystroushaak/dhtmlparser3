@@ -431,6 +431,12 @@ class Tag:
         if isinstance(value, Tag):
             value.parent = self
 
+    def __contains__(self, item):
+        if isinstance(item, str):
+            return item in self.parameters
+        else:
+            return item in self.content
+
     def __delitem__(self, key):
         if isinstance(key, str):
             del self.parameters[key]
