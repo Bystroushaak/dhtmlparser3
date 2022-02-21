@@ -398,6 +398,9 @@ class Tag:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __hash__(self):
+        return hash(self.tag_to_str())
+
     def __bool__(self):
         return bool(self.content)
 
