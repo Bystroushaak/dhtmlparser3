@@ -180,16 +180,33 @@ class Tag:
 
         return output
 
-    def replace_with(self, item: "Tag", keep_content=True):
-        if not isinstance(item, Tag):
-            raise TypeError(f"Can't replace `item` with `{item.__class__}`!")
+    def replace_with(self, item: "Tag", keep_content: bool = False):
+        """
+        Replace this Tag with another `item`.
 
-        self.name = item.name
-        self.parameters = item.parameters.copy()
-        if not keep_content:
-            self.content = item.content[:]
-        self.is_non_pair = item.is_non_pair
-        self._wfind_only_on_content = item._wfind_only_on_content
+        Args:
+            item (Tag, str): Item to replace this with.
+            keep_content (bool): Keep the original content. Default `False`.
+        """
+        if isinstance(item, str):
+            unused_root_element = self.parent.name == "" and len(self.parent.content) == 1
+            if self.parent and not unused_root_element:
+                self_index = self.parent.content.index(self)
+                self.parent.content[self_index] = item
+            else:
+                self.name = ""
+                self.parameters.clear()
+                self.is_non_pair = True
+                self.content = [item]
+        elif isinstance(item, Tag):
+            self.name = item.name
+            self.parameters = item.parameters.copy()
+            if not keep_content:
+                self.content = item.content[:]
+            self.is_non_pair = item.is_non_pair
+            self._wfind_only_on_content = item._wfind_only_on_content
+        else:
+            raise TypeError(f"Can't replace `item` with `{item.__class__}`!")
 
     def wfind(self, name, p=None, fn=None, case_sensitive=False):
         container = Tag(name="")
