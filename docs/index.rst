@@ -176,6 +176,7 @@ Square brackets can be also used for setting and deleting the sub-elements:
 
 ::
 
+    >>> del dom[0]
     >>> str(dom)
     '<tag param1="1" param2="2">    </tag>'
 
