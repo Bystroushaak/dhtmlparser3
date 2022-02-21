@@ -1,9 +1,16 @@
 Changelog
 =========
 
+3.0.2
+-----
+    - Added `.__hash__()` method for Tag.
+    - `.replace_with()` method now accepts `str` as well as Tag.
+    - Fixed problems with `.parent` setting for non-pair tags in the parser.
+    - Added bunch of tests to test newly added stuff.
+
 3.0.1
 -----
-    - Added `__contains__` method for Tag, so you can now test parameters using `in` operator.
+    - Added `.__contains__()` method for Tag, so you can now test parameters using `in` operator.
 
 3.0.0
 -----
