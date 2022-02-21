@@ -51,7 +51,9 @@ class Parser:
                 continue
 
             elif token.is_non_pair:
-                top_element.content.append(token.to_tag())
+                tag = token.to_tag()
+                tag.parent = top_element
+                top_element.content.append(tag)
                 continue
 
             elif token.is_end_tag:
