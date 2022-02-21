@@ -448,6 +448,28 @@ def test_remove_tags():
     assert not dom.content_without_tags()
 
 
+def test_parent():
+    dom = dhtmlparser3.parse("<div><pair>text</pair></div>")
+    pair = dom.find("pair")[0]
+
+    assert pair.parent
+
+    div = dom.find("div")[0]
+
+    assert pair.parent is div
+
+
+def test_parent_nonpair():
+    dom = dhtmlparser3.parse("<div><nonpair /></div>")
+    nonpair = dom.find("nonpair")[0]
+
+    assert nonpair.parent
+
+    div = dom.find("div")[0]
+
+    assert nonpair.parent is div
+
+
 def test_replace_with():
     dom = dhtmlparser3.parse("<div><nonpair /></div>")
     nonpair = dom.find("nonpair")[0]
@@ -458,6 +480,28 @@ def test_replace_with():
 
     assert dom.find("another")
     assert dom.to_string() == "<div><another /></div>"
+
+
+def test_replace_with_str():
+    dom = dhtmlparser3.parse("<div><nonpair /></div>")
+    nonpair = dom.find("nonpair")[0]
+
+    assert nonpair is not None
+
+    nonpair.replace_with("nothing")
+
+    assert dom.to_string() == "<div>nothing</div>"
+
+
+def test_replace_with_str_root_element():
+    dom = dhtmlparser3.parse("<nonpair />")
+    nonpair = dom.find("nonpair")[0]
+
+    assert nonpair is not None
+
+    nonpair.replace_with("nothing")
+
+    assert dom.to_string() == "nothing"
 
 
 def test_is_almost_equal():
@@ -490,7 +534,26 @@ def test___bytes__():
     assert bytes(dom) == b"<div><nonpair /></div>"
 
 
-def test__bool():
+def test___hash__():
+    tag = dhtmlparser3.Tag("asd")
+    assert hash(tag)
+
+    assert {tag,}
+
+    assert hash(tag) == hash(dhtmlparser3.Tag("asd"))
+
+
+def test_in_operator():
+    dom = dhtmlparser3.parse("<div a=1><nonpair /></div>")
+    nonpair = dom.find("nonpair")[0]
+
+    assert "a" in dom
+    assert "b" not in dom
+
+    assert nonpair in dom
+
+
+def test___bool__():
     dom = dhtmlparser3.parse("<div><nonpair /></div>")
     div = dom.find("div")[0]
     nonpair = dom.find("nonpair")[0]
