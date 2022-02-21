@@ -342,7 +342,7 @@ class Tag:
             bool: True if it is contained.
         """
         for key, val in parameter_subset.items():
-            if key not in self.parameters:
+            if not self.parameters or key not in self.parameters:
                 return False
 
             if val != self.parameters[key]:

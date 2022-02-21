@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.4
+-----
+    - Bugfix; Don't search empty tags.
+
 3.0.3
 -----
     - Bugfix; Always return container element for small doms with only strings inside.
