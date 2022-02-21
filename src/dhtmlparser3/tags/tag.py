@@ -171,6 +171,9 @@ class Tag:
         return " " + " ".join(parameters)
 
     def content_str(self) -> str:
+        """
+        Return everything in between the tags as string.
+        """
         output = ""
         for item in self.content:
             if isinstance(item, str):
@@ -241,9 +244,29 @@ class Tag:
         return item.content
 
     def find(self, name, p=None, fn=None, case_sensitive=False) -> List["Tag"]:
+        """
+        Find (depth first) all tags with given parameters.
+
+        Args:
+            name (str): Name of the tag you are looking for. Use `""` for all.
+            p (dict): Parameters to match.
+            fn (lambda fn): Lambda expecting one argument.
+             It will be tested for each element in the tree.
+            case_sensitive (bool): Use case sensitive search. Default `False`.
+        """
         return list(self.find_depth_first_iter(name, p, fn, case_sensitive))
 
     def findb(self, name, p=None, fn=None, case_sensitive=False) -> List["Tag"]:
+        """
+        Find (breadth first) all tags with given parameters.
+
+        Args:
+            name (str): Name of the tag you are looking for. Use `""` for all.
+            p (dict): Parameters to match.
+            fn (lambda fn): Lambda expecting one argument.
+             It will be tested for each element in the tree.
+            case_sensitive (bool): Use case sensitive search. Default `False`.
+        """
         return list(self.find_breadth_first_iter(name, p, fn, case_sensitive))
 
     def find_depth_first_iter(
