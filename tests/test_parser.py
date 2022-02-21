@@ -215,3 +215,9 @@ def test_correct_nonpair_behavior():
     assert head.tags[8].name == "script"
     assert head.tags[8].p["src"] == "https://www.googletagmanager.com/gtag/js?id=UA-142545439-1"
     assert head.tags[9].name == "script"
+
+
+def test_strings_are_returned_in_container():
+    dom = dhtmlparser3.parse("asd")
+
+    assert isinstance(dom, dhtmlparser3.Tag)

@@ -87,7 +87,7 @@ class Parser:
 
         gc.enable()
 
-        if len(root_elem.content) == 1:
+        if len(root_elem.content) == 1 and isinstance(root_elem.content[0], Tag):
             return root_elem.content[0]
 
         return root_elem

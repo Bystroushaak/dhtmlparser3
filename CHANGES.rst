@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.3
+-----
+    - Bugfix; Always return container element for small doms with only strings inside.
+
 3.0.2
 -----
     - Added `.__hash__()` method for Tag.
