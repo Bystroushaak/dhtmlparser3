@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.6
+-----
+    - Fixed behavior of `.match()` method.
+    - Added new method `.match_paths()`.
+    - Added tests.
+
 3.0.5
 -----
     - Bugfix; SpecialDict.copy() didn't return any value.

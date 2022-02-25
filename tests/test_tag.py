@@ -5,14 +5,7 @@ from dhtmlparser3.tags.tag import Tag
 
 
 def test_constructor_with_content():
-    e = Tag(
-        "name",
-        {"key": "value"},
-        [
-            "hello",
-            Tag("hi", is_non_pair=True)
-        ]
-    )
+    e = Tag("name", {"key": "value"}, ["hello", Tag("hi", is_non_pair=True)])
 
     assert not e.is_non_pair
 
@@ -40,7 +33,7 @@ def test_constructor_with_content_only():
         content=[
             "hello",
             Tag("hi"),
-        ]
+        ],
     )
 
     assert e.content
@@ -91,7 +84,8 @@ def test_to_string():
 
 
 def test_content_str():
-    dom = dhtmlparser3.parse("""
+    dom = dhtmlparser3.parse(
+        """
 <div id=first>
     First div.
     <div id=first.subdiv>
@@ -103,13 +97,14 @@ def test_content_str():
     <br />
     <!-- comment -->
 </div>
-    """)
+    """
+    )
 
     div = dom.find("div", {"id": "first.subdiv"})[0]
     assert div.content_str().strip() == "Subdiv in first div."
 
     second_div = dom.find("div", {"id": "second"})[0]
-    match = '\n    Second.\n    <br />\n    <!-- comment -->\n'
+    match = "\n    Second.\n    <br />\n    <!-- comment -->\n"
     assert second_div.content_str() == match
 
 
@@ -365,6 +360,31 @@ def test_match():
     assert xe[2].parameters["id"] == "last wanted xe"
 
 
+def test_match_p_in_body():
+    code = """
+    <html>
+      <body>
+        <article>
+          <div class="page-body">
+            <p>First</p>
+            <p>Second</p>
+            <p>Third</p>
+          </div>
+        </article>
+      </body>
+    </html>
+    """
+
+    dom = dhtmlparser3.parse(code)
+
+    p_tags = dom.match("body", ["div", {"class": "page-body"}], "p")
+
+    assert p_tags
+    assert p_tags[0].content_str() == "First"
+    assert p_tags[1].content_str() == "Second"
+    assert p_tags[2].content_str() == "Third"
+
+
 def test_match_parameters():
     dom = dhtmlparser3.parse(
         """
@@ -425,6 +445,34 @@ def test_match_parameters_relative_path():
 
     assert len(xe) == 1
     assert xe[0].parameters["id"] == "wanted xe"
+
+
+def test_match_path_p_in_body():
+    code = """
+    <html>
+      <body>
+        <article>
+          <div class="page-body">
+            <p>First</p>
+            <p>Second</p>
+            <p>Third</p>
+          </div>
+        </article>
+      </body>
+    </html>
+    """
+
+    dom = dhtmlparser3.parse(code)
+
+    p_tags = dom.match_paths("body", ["div", {"class": "page-body"}], "p")
+    assert not p_tags
+
+    p_tags = dom.match_paths("body", "article", ["div", {"class": "page-body"}], "p")
+
+    assert p_tags
+    assert p_tags[0].content_str() == "First"
+    assert p_tags[1].content_str() == "Second"
+    assert p_tags[2].content_str() == "Third"
 
 
 def test_double_link():
@@ -538,7 +586,9 @@ def test___hash__():
     tag = dhtmlparser3.Tag("asd")
     assert hash(tag)
 
-    assert {tag,}
+    assert {
+        tag,
+    }
 
     assert hash(tag) == hash(dhtmlparser3.Tag("asd"))
 
@@ -640,7 +690,7 @@ def test___delitem__():
     assert str(dom) == '<div param="1"></div>'
 
     del div["param"]
-    assert str(dom) == '<div></div>'
+    assert str(dom) == "<div></div>"
 
 
 def test___iter__():

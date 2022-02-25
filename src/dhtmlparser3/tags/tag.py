@@ -230,18 +230,79 @@ class Tag:
         return container
 
     def match(self, *args):
+        """
+        Recursively call `find` for each element in `*args`. That means fuzzy
+        matching, like "find all `<div>`s, which have this `<p>` element, which
+        has this `<a>` in it.
+
+        Example:
+            dom.match("div", ["p", {"class": "great"}], "a")
+
+        Args:
+            *args (list): List of paths to match.
+
+        Returns:
+            list: List of matched elements.
+        """
+        item = self
+        args = list(args)
+
+        arg = args.pop(0)
+        matched = self._call_find(arg)
+
+        if not args:
+            return matched
+
+        next_matched = []
+        while args:
+            arg = args.pop(0)
+            for item in matched:
+                next_matched.extend(item._call_find(arg))
+
+            matched = next_matched
+            next_matched = []
+
+        return matched
+
+    def _call_find(self, arg):
+        if isinstance(arg, dict):
+            return self.find(**arg)
+        elif isinstance(arg, list) or isinstance(arg, tuple):
+            return self.find(*arg)
+        else:
+            return self.find(arg)
+
+    def match_paths(self, *args):
+        """
+        Exactly match the path given by the arguments.
+
+        Example:
+            dom.match("body", ["div", {"class": "page-body"}], "p")
+
+        This will match the path only if it really goes like this. If the `<p>`
+        is for example wrapped in <div>, it won't be matched.
+
+        Args:
+            *args (list): List of paths to match.
+
+        Returns:
+            list: List of matched elements.
+        """
         item = self
         args = list(args)
         while args:
             arg = args.pop(0)
-            if isinstance(arg, dict):
-                item = item.wfind(**arg)
-            elif isinstance(arg, list) or isinstance(arg, tuple):
-                item = item.wfind(*arg)
-            else:
-                item = item.wfind(arg)
+            item = item._call_wfind(arg)
 
         return item.content
+
+    def _call_wfind(self, arg):
+        if isinstance(arg, dict):
+            return self.wfind(**arg)
+        elif isinstance(arg, list) or isinstance(arg, tuple):
+            return self.wfind(*arg)
+        else:
+            return self.wfind(arg)
 
     def find(self, name, p=None, fn=None, case_sensitive=False) -> List["Tag"]:
         """
