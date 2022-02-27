@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.7
+-----
+    - Don't escape `<script>` and `<style>` content's.
+
 3.0.6
 -----
     - Fixed behavior of `.match()` method.

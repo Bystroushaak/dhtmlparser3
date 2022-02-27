@@ -18,6 +18,8 @@ class Tag:
         parent (Tag): Reference to parent element.
     """
     _DICT_INSTANCE = SpecialDict
+    _DONT_ESCAPE = {"style", "script"}
+    _DONT_FORMAT = {"pre", "style", "script"}
 
     def __init__(self, name, parameters=None, content=None, is_non_pair=False):
         self.name = name
@@ -134,9 +136,14 @@ class Tag:
         Get HTML representation of the tag and the content.
         """
         output = self.tag_to_str()
+
+        escape_fn = html.escape
+        if self.name in self._DONT_ESCAPE:
+            escape_fn = lambda x: x
+
         for item in self.content:
             if isinstance(item, str):
-                output += html.escape(item)
+                output += escape_fn(item)
             else:
                 output += item.to_string()
 
@@ -423,14 +430,18 @@ class Tag:
 
         end_tag = "" if self.is_non_pair else f"</{self.name}>"
 
-        if not dont_format and self.name in {"pre", "style", "script"}:
+        if not dont_format and self.name in self._DONT_FORMAT:
             dont_format = True
+
+        escape_fn = html.escape
+        if self.name in self._DONT_ESCAPE:
+            escape_fn = lambda x: x
 
         content = ""
         for item in self.content:
             if isinstance(item, str):
                 if dont_format or item.strip():
-                    content += html.escape(item)
+                    content += escape_fn(item)
             else:
                 content += item.prettify(depth + 1, dont_format=dont_format)
 
@@ -452,10 +463,14 @@ class Tag:
     def _just_prettify_the_content(self):
         outputs = []
 
+        escape_fn = html.escape
+        if self.name in self._DONT_ESCAPE:
+            escape_fn = lambda x: x
+
         for item in self.content:
             if isinstance(item, str):
                 if item.strip():
-                    outputs.append(html.escape(item))
+                    outputs.append(escape_fn(item))
             else:
                 outputs.append(item.prettify(0))
 

@@ -706,3 +706,9 @@ def test_entities():
     assert dom.content_str() == "<"
 
     assert str(dom) == '<div param="1">&lt;</div>'
+
+
+def test_script_is_not_escaped():
+    tag = Tag("script", content=["<"])
+
+    assert tag.to_string() == "<script><</script>"
