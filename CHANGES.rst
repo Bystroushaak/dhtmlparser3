@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.9
+-----
+    - Fixed the way how the quotes are escaped in the tag parameters.
+
 3.0.8
 -----
     - Fixed behavior of the `.__hash__()` method for nested tags.

@@ -176,20 +176,16 @@ class Tokenizer:
             self.advance()
             return ""
 
-        is_quoted = False
         while not self.is_at_end():
-            if self.char == quote_type and not is_quoted:
+            if self.char == quote_type:
                 self.advance()
                 return self.return_reset_buffer()
 
-            if self.char == "\\":
-                is_quoted = not is_quoted
-
-                if is_quoted and (self.peek_is(quote_type) or self.peek_is("\\")):
-                    self.advance()
-                    continue
-            else:
-                is_quoted = False
+            if self.char == "&":
+                buffer = self.buffer
+                buffer += self._consume_entity().to_text()
+                self.buffer = buffer
+                continue
 
             self.buffer += self.char
             self.advance()

@@ -10,6 +10,9 @@ class TextToken(Token):
     def __init__(self, content=""):
         self.content = content
 
+    def to_text(self):
+        return self.content
+
     def __eq__(self, other):
         if not isinstance(other, TextToken):
             return False

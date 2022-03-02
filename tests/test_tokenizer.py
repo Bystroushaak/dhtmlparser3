@@ -165,7 +165,7 @@ def test_tag_with_double_quoted_parameter():
 
 
 def test_tag_with_double_quoted_parameter_and_escape_seq():
-    tokenizer = Tokenizer('<tag key="a \\" a">')
+    tokenizer = Tokenizer('<tag key="a &quot; a">')
 
     assert tokenizer.tokenize() == [
         TagToken("tag", parameters=[ParameterToken("key", 'a " a')])
@@ -173,15 +173,15 @@ def test_tag_with_double_quoted_parameter_and_escape_seq():
 
 
 def test_tag_with_double_quoted_parameter_and_backslash():
-    tokenizer = Tokenizer('<tag key="a \ a\\\\">')
+    tokenizer = Tokenizer('<tag key="a \ a">')
 
     assert tokenizer.tokenize() == [
-        TagToken("tag", parameters=[ParameterToken("key", "a \ a\\")])
+        TagToken("tag", parameters=[ParameterToken("key", "a \ a")])
     ]
 
 
 def test_tag_with_double_quoted_parameter_and_multiple_escape_seq():
-    tokenizer = Tokenizer('<tag key="a \\\\\\" a">')
+    tokenizer = Tokenizer('<tag key="a \\&quot; a">')
 
     assert tokenizer.tokenize() == [
         TagToken("tag", parameters=[ParameterToken("key", 'a \\" a')])
@@ -280,7 +280,7 @@ def test_parameters():
 
 
 def test_parameters_quotes():
-    tokenizer = Tokenizer("""<html><tag params="some \\"<quoted>\\" text"></html>""")
+    tokenizer = Tokenizer("""<html><tag params="some &quot;<quoted>&quot; text"></html>""")
 
     assert tokenizer.tokenize() == [
         TagToken("html"),

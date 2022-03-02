@@ -83,6 +83,28 @@ def test_to_string():
     assert dom.c[0].to_string() == '<tag PARAM="true" rectangular />'
 
 
+def test_to_string_quote_is_escaped():
+    dom = dhtmlparser3.parse('<test param="&quot;" />')
+
+    test = dom.find("test")
+
+    assert test
+    assert test[0].p["param"] == '"'
+
+    assert test[0].to_string() == '<test param="&quot;" />'
+
+
+def test_to_string_quote_is_escaped_with_more_text():
+    dom = dhtmlparser3.parse('<test param="more &quot; more" />')
+
+    test = dom.find("test")
+
+    assert test
+    assert test[0].p["param"] == 'more " more'
+
+    assert test[0].to_string() == '<test param="more &quot; more" />'
+
+
 def test_content_str():
     dom = dhtmlparser3.parse(
         """
