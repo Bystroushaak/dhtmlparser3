@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.8
+-----
+    - Fixed behavior of the `.__hash__()` method for nested tags.
+
 3.0.7
 -----
     - Don't escape `<script>` and `<style>` content's.

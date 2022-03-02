@@ -593,6 +593,20 @@ def test___hash__():
     assert hash(tag) == hash(dhtmlparser3.Tag("asd"))
 
 
+def test___hash___multiple():
+    asd = dhtmlparser3.Tag("asd")
+    asd2 = dhtmlparser3.Tag("asd", content=[dhtmlparser3.Tag("test")])
+    assert hash(asd)
+    assert hash(asd2)
+
+    assert hash(asd) == hash(dhtmlparser3.Tag("asd"))
+
+    assert len({asd, asd2}) == 2
+
+    asd3 = dhtmlparser3.Tag("asd", content=[dhtmlparser3.Tag("test")])
+    assert hash(asd2) == hash(asd3)
+
+
 def test_in_operator():
     dom = dhtmlparser3.parse("<div a=1><nonpair /></div>")
     nonpair = dom.find("nonpair")[0]

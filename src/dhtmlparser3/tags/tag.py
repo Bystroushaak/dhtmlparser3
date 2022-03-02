@@ -515,7 +515,12 @@ class Tag:
         return not self.__eq__(other)
 
     def __hash__(self):
-        return hash(self.tag_to_str())
+        rolling_hash = hash(self.tag_to_str())
+
+        for item in self.content:
+            rolling_hash ^= hash(item)
+
+        return rolling_hash
 
     def __bool__(self):
         return bool(self.content)
