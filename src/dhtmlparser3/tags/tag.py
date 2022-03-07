@@ -1,4 +1,5 @@
 import html
+import copy
 from typing import Dict
 from typing import List
 from typing import Union
@@ -569,3 +570,22 @@ class Tag:
 
     def __iter__(self):
         return iter(self.tags)
+
+    def __copy__(self):
+        new_tag = Tag(self.name, self.parameters.copy(), self.content, self.is_non_pair)
+        new_tag._wfind_only_on_content = self._wfind_only_on_content
+        new_tag.parent = self.parent
+
+        return new_tag
+
+    def __deepcopy__(self, memodict={}):
+        new_tag = Tag(self.name, self.parameters.copy(), is_non_pair=self.is_non_pair)
+        new_tag._wfind_only_on_content = self._wfind_only_on_content
+        new_tag.parent = self.parent
+
+        new_tag.content = [
+            copy.deepcopy(x, memodict)
+            for x in self.content
+        ]
+
+        return new_tag

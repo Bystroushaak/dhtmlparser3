@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.10.0
+------
+    - Implemented proper `.__copy__()` and `.__deepcopy__()` methods.
+
 3.0.9
 -----
     - Fixed the way how the quotes are escaped in the tag parameters.

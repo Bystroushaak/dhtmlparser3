@@ -1,3 +1,5 @@
+import copy
+
 import pytest
 
 import dhtmlparser3
@@ -748,3 +750,51 @@ def test_script_is_not_escaped():
     tag = Tag("script", content=["<"])
 
     assert tag.to_string() == "<script><</script>"
+
+
+def test_copy():
+    dom = dhtmlparser3.parse("<div param=1>test</div>")
+    tag = dom.find("div")[0]
+
+    assert tag
+
+    new_tag = copy.copy(tag)
+
+    assert new_tag
+    assert new_tag["param"] == "1"
+
+    new_tag["param"] = "2"
+    assert new_tag["param"] == "2"
+    assert tag["param"] == "1"
+
+    assert tag.c[0] == "test"
+    assert new_tag.c[0] == "test"
+
+    new_tag.c[0] = "aaa"
+
+    assert tag.c[0] == "aaa"
+    assert new_tag.c[0] == "aaa"
+
+
+def test_deep_copy():
+    dom = dhtmlparser3.parse("<div param=1><h1>test</h1></div>")
+    tag = dom.find("div")[0]
+
+    assert tag
+
+    new_tag = copy.deepcopy(tag)
+
+    assert new_tag
+    assert new_tag["param"] == "1"
+
+    new_tag["param"] = "2"
+    assert new_tag["param"] == "2"
+    assert tag["param"] == "1"
+
+    assert tag.c[0].name == "h1"
+    assert new_tag.c[0].name == "h1"
+
+    new_tag.c[0].replace_with(Tag("h2", content=new_tag.c[0].c[:]))
+
+    assert str(tag) == '<div param="1"><h1>test</h1></div>'
+    assert str(new_tag) == '<div param="2"><h2>test</h2></div>'
