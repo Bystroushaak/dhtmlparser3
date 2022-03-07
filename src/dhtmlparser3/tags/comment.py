@@ -25,3 +25,9 @@ class Comment:
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __copy__(self):
+        return Comment(self.content)
+
+    def __deepcopy__(self, memodict={}):
+        return Comment(self.content)
