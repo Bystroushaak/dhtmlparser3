@@ -6,7 +6,7 @@ class Comment:
         if not self.content.strip():
             return "<!-- -->"
 
-        return f"<!-- {self.content.strip()} -->"
+        return f"<!--{self.content}-->"
 
     def prettify(self, depth, dont_format=False):
         if dont_format:

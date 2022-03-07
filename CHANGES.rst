@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.10.0
+3.0.10
 ------
     - Implemented proper `.__copy__()` and `.__deepcopy__()` methods.
 
