@@ -1,5 +1,5 @@
 
-.. image:: https://badge.fury.io/py/dhtmlparser3.png
+.. image:: https://badge.fury.io/py/DHTMLParser3.svg
     :target: https://pypi.python.org/pypi/dhtmlparser3
 
 .. image:: https://img.shields.io/pypi/dm/dhtmlparser3.svg
@@ -13,6 +13,9 @@
 
 .. image:: https://img.shields.io/pypi/l/dhtmlparser3.svg
     :target: https://github.com/Bystroushaak/dhtmlparser3/blob/master/LICENSE.txt
+    
+.. image:: https://img.shields.io/github/sponsors/Bystroushaak
+    :target: https://github.com/sponsors/Bystroushaak
 
 What is it?
 ===========
