@@ -178,14 +178,20 @@ class Tag:
 
         return " " + " ".join(parameters)
 
-    def content_str(self) -> str:
+    def content_str(self, escape=False) -> str:
         """
         Return everything in between the tags as string.
+
+        Args:
+            escape (bool): Escape the content. Default False.
         """
         output = ""
         for item in self.content:
             if isinstance(item, str):
-                output += item
+                if escape:
+                    output += html.escape(item)
+                else:
+                    output += item
             else:
                 output += item.to_string()
 

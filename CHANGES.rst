@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.12
+------
+    - Added conditional `escape` parameter to `.content_str()` method.
+
 3.0.11
 ------
     - Fixed parent problem with `.__deepcopy__()`.

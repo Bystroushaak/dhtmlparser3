@@ -799,3 +799,20 @@ def test_deep_copy():
 
     assert str(tag) == '<div param="1"><h1>test</h1></div>'
     assert str(new_tag) == '<div param="2"><h2>test</h2></div>'
+
+
+def test_weird_msg():
+    original_str = """<blockquote>Message-ID: &lt;9208181757.AA24531@messua.informatik.rwth-aachen.de&gt;</blockquote>"""
+    dom = dhtmlparser3.parse(original_str)
+
+    content = dom.find("blockquote")[0].content_str().strip()
+    assert content == "Message-ID: <9208181757.AA24531@messua.informatik.rwth-aachen.de>"
+
+    content = dom.find("blockquote")[0].content_str(True).strip()
+    assert content == "Message-ID: &lt;9208181757.AA24531@messua.informatik.rwth-aachen.de&gt;"
+
+    tag = dom.find("blockquote")[0]
+    assert tag.to_string() == original_str
+
+    assert tag.prettify().strip() == original_str
+
