@@ -793,6 +793,7 @@ def test_deep_copy():
 
     assert tag.c[0].name == "h1"
     assert new_tag.c[0].name == "h1"
+    assert new_tag.c[0].parent is new_tag
 
     new_tag.c[0].replace_with(Tag("h2", content=new_tag.c[0].c[:]))
 

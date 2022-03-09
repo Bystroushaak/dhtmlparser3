@@ -581,11 +581,13 @@ class Tag:
     def __deepcopy__(self, memodict={}):
         new_tag = Tag(self.name, self.parameters.copy(), is_non_pair=self.is_non_pair)
         new_tag._wfind_only_on_content = self._wfind_only_on_content
-        new_tag.parent = self.parent
 
         new_tag.content = [
             copy.deepcopy(x, memodict)
             for x in self.content
         ]
+        for item in new_tag.content:
+            if isinstance(item, Tag):
+                item.parent = new_tag
 
         return new_tag

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.11
+------
+    - Fixed parent problem with `.__deepcopy__()`.
+
 3.0.10
 ------
     - Implemented proper `.__copy__()` and `.__deepcopy__()` methods.
