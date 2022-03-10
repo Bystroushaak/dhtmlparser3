@@ -127,7 +127,7 @@ class Tokenizer:
     def _consume_tag_name(self):
         self.buffer = self.char
         while not self.is_at_end():
-            if self.peek() in "> \n\t<":
+            if self.peek() in "> \n\t</":
                 self.advance()  # move to the > or " "
                 return self.return_reset_buffer()
 

@@ -221,3 +221,11 @@ def test_strings_are_returned_in_container():
     dom = dhtmlparser3.parse("asd")
 
     assert isinstance(dom, dhtmlparser3.Tag)
+
+
+def test_parse_weird_maven_nonpair_tags():
+    dom = dhtmlparser3.parse("<jsObfuscator/>")
+
+    assert dom.name == "jsObfuscator"
+    assert dom.is_non_pair
+    assert dom.to_string() == "<jsObfuscator />"

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.14
+------
+    - Fixed problem with tokenizer & nonpair tags without spaces.
+
 3.0.13
 ------
     - Fixed problem with re-ordering of the parameters when setting them.
