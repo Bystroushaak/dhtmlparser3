@@ -34,7 +34,14 @@ class SpecialDict(OrderedDict):
         # remove the old key with (possibly) different case
         if lower_key in self._case_mapping:
             original_key = self._case_mapping[lower_key]
-            super().__delitem__(original_key)
+
+            if key != original_key:
+                key_index = list(super().keys()).index(original_key)
+                super().__delitem__(original_key)
+                super().__setitem__(key, value)
+                keys = list(super().keys())
+                for index in range(key_index, len(self) - 1):
+                    super().move_to_end(keys[index])
 
         self._case_mapping[lower_key] = key
 

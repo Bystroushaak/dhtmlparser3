@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.13
+------
+    - Fixed problem with re-ordering of the parameters when setting them.
+
 3.0.12
 ------
     - Added conditional `escape` parameter to `.content_str()` method.

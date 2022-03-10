@@ -98,3 +98,33 @@ def test_lower_if_str():
     assert _lower_if_str("ASD") == "asd"
     assert _lower_if_str(u"ASD") == u"asd"
     assert _lower_if_str(123) == 123
+
+
+def test_sorting_is_kept():
+    sd = SpecialDict({"a": 1, "b": 2, "c": 3})
+
+    sd["A"] = 4
+    assert list(sd.keys()) == ["A", "b", "c"]
+
+    sd["c"] = 5
+    assert list(sd.keys()) == ["A", "b", "c"]
+
+
+def test_sorting_is_kept_edge_cases():
+    sd = SpecialDict({"a": 1})
+    sd["A"] = 4
+    assert list(sd.keys()) == ["A"]
+
+    sd = SpecialDict({"a": 1, "b": 2})
+    sd["A"] = 4
+    assert list(sd.keys()) == ["A", "b"]
+
+    sd = SpecialDict({"a": 1, "b": 2})
+    sd["B"] = 4
+    assert list(sd.keys()) == ["a", "B"]
+
+    sd = SpecialDict({"a": 1, "b": 2})
+    sd["b"] = 4
+    assert list(sd.keys()) == ["a", "b"]
+    assert sd["a"] == 1
+    assert sd["b"] == 4
