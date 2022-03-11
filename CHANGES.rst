@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.15
+------
+    - Added new method `parse_file()` method to simplify working with files.
+
 3.0.14
 ------
     - Fixed problem with tokenizer & nonpair tags without spaces.

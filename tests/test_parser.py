@@ -229,3 +229,22 @@ def test_parse_weird_maven_nonpair_tags():
     assert dom.name == "jsObfuscator"
     assert dom.is_non_pair
     assert dom.to_string() == "<jsObfuscator />"
+
+
+def test_file_parser():
+    path = "/tmp/test.xml"
+    xml_str = "<test><a>a</a></test>"
+    with open(path, "w") as f:
+        f.write(xml_str)
+
+    fp = dhtmlparser3.parse_file(path)
+
+    test = fp.dom.find("test")[0]
+
+    assert test.name == "test"
+
+    fp.dom.find("a")[0].content = ["b"]
+    fp.write()
+
+    with open(path) as f:
+        assert f.read() == "<test><a>b</a></test>"
