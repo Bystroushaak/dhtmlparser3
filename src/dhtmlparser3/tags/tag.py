@@ -18,6 +18,7 @@ class Tag:
         content (list): List of sub-elements.
         parent (Tag): Reference to parent element.
     """
+
     _DICT_INSTANCE = SpecialDict
     _DONT_ESCAPE = {"style", "script"}
     _DONT_FORMAT = {"pre", "style", "script"}
@@ -109,25 +110,16 @@ class Tag:
     def remove_item(self, item: Union[str, "Tag", Comment]):
         """
         Remove the item from the .content property.
-
-        If the `item` is Tag instance, match it using tag name and parameters.
         """
         if isinstance(item, str):
             self.content.remove(item)
         elif isinstance(item, Comment):
             self.content = [
-                x
-                for x in self.content
-                if not (isinstance(x, Comment) and x.content == item.content)
+                x for x in self.content if not (isinstance(x, Comment) and x is item)
             ]
         elif isinstance(item, Tag):
             self.content = [
-                x
-                for x in self.content
-                if not (
-                    isinstance(x, Tag)
-                    and x._is_almost_equal(item.name, item.parameters)
-                )
+                x for x in self.content if not (isinstance(x, Tag) and x is item)
             ]
         else:
             raise ValueError(f"Can't remove `{repr(item)}`")
@@ -206,7 +198,9 @@ class Tag:
             keep_content (bool): Keep the original content. Default `False`.
         """
         if isinstance(item, str):
-            unused_root_element = self.parent.name == "" and len(self.parent.content) == 1
+            unused_root_element = (
+                self.parent.name == "" and len(self.parent.content) == 1
+            )
             if self.parent and not unused_root_element:
                 self_index = self.parent.content.index(self)
                 self.parent.content[self_index] = item
@@ -496,10 +490,7 @@ class Tag:
             f"is_non_pair={self.is_non_pair}",
         )
         if self._wfind_only_on_content:
-            parameters = (
-                'name=""',
-                f'content={repr(self.content)}'
-            )
+            parameters = ('name=""', f"content={repr(self.content)}")
 
         return f"{self.__class__.__name__}({', '.join(parameters)})"
 
@@ -588,10 +579,7 @@ class Tag:
         new_tag = Tag(self.name, self.parameters.copy(), is_non_pair=self.is_non_pair)
         new_tag._wfind_only_on_content = self._wfind_only_on_content
 
-        new_tag.content = [
-            copy.deepcopy(x, memodict)
-            for x in self.content
-        ]
+        new_tag.content = [copy.deepcopy(x, memodict) for x in self.content]
         for item in new_tag.content:
             if isinstance(item, Tag):
                 item.parent = new_tag

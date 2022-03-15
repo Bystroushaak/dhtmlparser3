@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.16
+------
+    - Changed behavior of the `.remove_item()` method to compare using identity.
+
 3.0.15
 ------
     - Added new method `parse_file()` method to simplify working with files.
