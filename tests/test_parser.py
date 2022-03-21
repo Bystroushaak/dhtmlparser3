@@ -248,3 +248,15 @@ def test_file_parser():
 
     with open(path) as f:
         assert f.read() == "<test><a>b</a></test>"
+
+
+def test_empty_string():
+    dom = dhtmlparser3.parse("")
+
+    assert dom.content == ['']
+
+
+def test_blank_string():
+    dom = dhtmlparser3.parse(" ")
+
+    assert dom.content == [" "]

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.17
+------
+    - Fixed problem with empty strings in Tokenizer.
+
 3.0.16
 ------
     - Changed behavior of the `.remove_item()` method to compare using identity.

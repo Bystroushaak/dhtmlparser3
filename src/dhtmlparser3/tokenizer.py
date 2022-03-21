@@ -26,7 +26,8 @@ class Tokenizer:
 
     def tokenize_iter(self) -> Iterator[Token]:
         if self.end == 0:
-            raise StopIteration()
+            yield TextToken(self.string)
+            return
 
         token = self._scan_token()
 
